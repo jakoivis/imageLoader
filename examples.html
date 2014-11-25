@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Preloader examples</title>
+
+<script src="js/preloader-1.1.js"></script>
+
+</head>
+<body>
+
+
+<script>
+    function getImages_stringArray() {
+        return [
+            "assets/00_03.png",
+            "assets/01_03.png",
+            "assets/02_03.png"];
+    }
+    
+    function getImages_stringArray_lastFails() {
+        return [
+            "assets/00_03.png",
+            "assets/01_03.png",
+            "assets/0x_03.png"];
+    }
+    
+    function getImages_objectArray() {
+        return [
+            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
+            {src: "assets/01_03.png", prop3:3},
+            {src: "assets/02_03.png", prop4:4.4}
+        ];
+    }
+    
+    function getImages_objectArray_lastFails() {
+        return [
+            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
+            {src: "assets/01_03.png", prop3:3},
+            {src: "assets/0x_03.png", prop4:4.4}
+        ];
+    }
+    
+    function getImages_objectArray_missingSrc() {
+        return [
+            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
+            {prop3:3},
+            {src: "assets/00_03.png", prop4:4.4}
+        ];
+    }
+    
+    var images = getImages_stringArray();
+    
+    function example1_basicUsage() {
+        var loader = new Preloader({images: images});
+    }
+    example1_basicUsage();
+    
+    function example_autoloadSetting() {
+        var loader = new Preloader({images: images, autoload: false});
+            loader.load();
+    }
+    example_autoloadSetting();
+    
+    function example_isComplete() {
+        var loader = new Preloader({images:images});
+            loader.isComplete();
+    }
+    example_isComplete()
+
+    function example_callbacks() {
+        var loader = new Preloader({
+                            images:images,
+                            onComplete:onComplete,
+                            onFileComplete:onFileComplete,
+                            onFileStart:onFileStart});
+        
+        function onComplete() {
+            console.log("onComplete");
+        }
+        function onFileStart(item) {
+            console.log("onFileStart: " + item.src);
+        }
+        function onFileComplete(item) {
+            console.log("onFileComplete: " + item.src);
+        }
+    }
+    
+    // getQueue()
+    // loop properties
+    // interface descriptions
+    // threads
+    // progressbar example
+    // simulationDelay
+    
+    function example_printProperties()
+    {
+        var loader = new Preloader({
+                            images:images,
+                            onComplete:onComplete,
+                            onFileComplete:onFileComplete,
+                            onFileStart:onFileStart,
+                            simulationDelayMin:500,
+                            simulationDelayMax:1000,
+                            numberOfThreads:1});
+        
+        function onComplete() {
+            console.log("onComplete");
+        }
+        function onFileStart(item) {
+            console.log("onFileStart:");
+        }
+        function onFileComplete(item) {
+            console.log("onFileComplete: " + loader.getPercentLoaded());
+            printQueueItem(item);
+        }
+        function printQueueItem(item) {
+            for(var property in item) {
+                console.log(property);
+            }
+        }
+    }
+    
+    example_printProperties();
+    
+
+</script>
+</body>
+</html>
