@@ -1,12 +1,3 @@
-// Karma configuration
-// Generated on Sun Apr 13 2014 21:08:35 GMT+0300 (FLE Daylight Time)
-
-/**
- * Description
- * @method exports
- * @param {} config
- * @return 
- */
 module.exports = function(config) {
   config.set({
 
@@ -22,18 +13,18 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'js/preloader-1.1.js',
-      'tests/preloader-1.1.test.js',
-      {pattern: 'assets/*.png', watched: false, included: false, served: true}
+      'test/preloader-1.1.test.js',
+      {pattern: 'test/assets/*.png', watched: false, included: false, served: true}
     ],
     
     proxies: {
-      '/assets': 'http://localhost/imageLoader/assets/'
+      '/assets/': 'http://localhost:9876/base/test/assets/'
     },
 
 
     // list of files to exclude
     exclude: [
-      'js/main.js',
+
     ],
 
 
@@ -69,7 +60,8 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJs'],
+    browsers: ['PhantomJS'],
+    //browsers: ['Chrome'],
 
 
     // Continuous Integration mode

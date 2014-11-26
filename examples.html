@@ -13,39 +13,39 @@
 <script>
     function getImages_stringArray() {
         return [
-            "assets/00_03.png",
-            "assets/01_03.png",
-            "assets/02_03.png"];
+            "test/assets/sample1_tb.png",
+            "test/assets/sample2_tb.png",
+            "test/assets/sample3_tb.png"];
     }
     
     function getImages_stringArray_lastFails() {
         return [
-            "assets/00_03.png",
-            "assets/01_03.png",
-            "assets/0x_03.png"];
+            "test/assets/sample1_tb.png",
+            "test/assets/sample2_tb.png",
+            "test/assets/samplex_tb.png"];
     }
     
     function getImages_objectArray() {
         return [
-            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
-            {src: "assets/01_03.png", prop3:3},
-            {src: "assets/02_03.png", prop4:4.4}
+            {src: "test/assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
+            {src: "test/assets/sample2_tb.png", prop3:3},
+            {src: "test/assets/sample3_tb.png", prop4:4.4}
         ];
     }
     
     function getImages_objectArray_lastFails() {
         return [
-            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
-            {src: "assets/01_03.png", prop3:3},
-            {src: "assets/0x_03.png", prop4:4.4}
+            {src: "test/assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
+            {src: "test/assets/sample2_tb.png", prop3:3},
+            {src: "test/assets/samplex_tb.png", prop4:4.4}
         ];
     }
     
     function getImages_objectArray_missingSrc() {
         return [
-            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
+            {src: "test/assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
             {prop3:3},
-            {src: "assets/00_03.png", prop4:4.4}
+            {src: "test/assets/sample1_tb.png", prop4:4.4}
         ];
     }
     
@@ -54,19 +54,19 @@
     function example1_basicUsage() {
         var loader = new Preloader({images: images});
     }
-    example1_basicUsage();
+    //example1_basicUsage();
     
     function example_autoloadSetting() {
         var loader = new Preloader({images: images, autoload: false});
             loader.load();
     }
-    example_autoloadSetting();
+    //example_autoloadSetting();
     
     function example_isComplete() {
         var loader = new Preloader({images:images});
             loader.isComplete();
     }
-    example_isComplete()
+    //example_isComplete()
 
     function example_callbacks() {
         var loader = new Preloader({
@@ -86,12 +86,7 @@
         }
     }
     
-    // getQueue()
-    // loop properties
-    // interface descriptions
-    // threads
-    // progressbar example
-    // simulationDelay
+    example_callbacks();
     
     function example_printProperties()
     {
@@ -121,7 +116,7 @@
         }
     }
     
-    example_printProperties();
+    //example_printProperties();
     
 
 </script>

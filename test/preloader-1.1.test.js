@@ -2,39 +2,39 @@ describe("", function() {
  
     function getImages_stringArray() {
         return [
-            "assets/00_03.png",
-            "assets/01_03.png",
-            "assets/02_03.png"];
+            "assets/sample1_tb.png",
+            "assets/sample2_tb.png",
+            "assets/sample3_tb.png"];
     }
     
     function getImages_stringArray_lastFails() {
         return [
-            "assets/00_03.png",
-            "assets/01_03.png",
-            "assets/0x_03.png"];
+            "assets/sample1_tb.png",
+            "assets/sample2_tb.png",
+            "assets/samplex_tb.png"];
     }
     
     function getImages_objectArray() {
         return [
-            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
-            {src: "assets/01_03.png", prop3:3},
-            {src: "assets/02_03.png", prop4:4.4}
+            {src: "assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
+            {src: "assets/sample2_tb.png", prop3:3},
+            {src: "assets/sample3_tb.png", prop4:4.4}
         ];
     }
     
     function getImages_objectArray_lastFails() {
         return [
-            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
-            {src: "assets/01_03.png", prop3:3},
-            {src: "assets/0x_03.png", prop4:4.4}
+            {src: "assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
+            {src: "assets/sample2_tb.png", prop3:3},
+            {src: "assets/samplex_tb.png", prop4:4.4}
         ];
     }
     
     function getImages_objectArray_missingSrc() {
         return [
-            {src: "assets/00_03.png", prop1:"value1", prop2:"value2"},
+            {src: "assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
             {prop3:3},
-            {src: "assets/00_03.png", prop4:4.4}
+            {src: "assets/sample1_tb.png", prop4:4.4}
         ];
     }
     
