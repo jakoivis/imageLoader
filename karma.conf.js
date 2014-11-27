@@ -12,8 +12,8 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'js/preloader-1.1.js',
-      'test/preloader-1.1.test.js',
+      'src/preloader.js',
+      'test/preloader.test.js',
       {pattern: 'test/assets/*.png', watched: false, included: false, served: true}
     ],
     
