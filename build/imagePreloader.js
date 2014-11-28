@@ -1,6 +1,6 @@
 /*
     Preloader version 1.1
-    Preloader-1.1.js
+    preloader-1.1.js
 
     The MIT License (MIT)
 
@@ -276,4 +276,321 @@
         return this;
     }
 
+})();
+;(function(undefined) {
+    'use strict';
+
+    window.Queue = Queue;
+
+    function Queue(images)
+    {
+        if (!(this instanceof Queue))
+        {
+            return new Queue(images);
+        }
+
+        var items;
+        var me = this;
+
+        me.length = 0;
+
+        init();
+
+        me.get = function(index)
+        {
+            return items[index];
+        };
+
+        me.isComplete = function()
+        {
+            var result = true;
+            var item;
+
+            for(var i = 0; i < items.length; i++)
+            {
+                item = items[i];
+
+                if (item.isPending() || item.isLoading())
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            return result;
+        };
+
+        me.getNextPendingItem = function()
+        {
+            var result;
+
+            for(var i = 0; i < items.length; i++)
+            {
+                if (items[i].isPending())
+                {
+                    result = items[i];
+                    break;
+                }
+            }
+
+            return result;
+        };
+
+        me.getPercentLoaded = function()
+        {
+            var item;
+            var i = 0;
+            var len = items.length;
+
+            for(i; i < len; i++)
+            {
+                item = items[i];
+
+                if (item.isPending() || item.isLoading())
+                {
+                    break;
+                }
+            }
+
+            return i / len;
+        };
+
+        function init()
+        {
+            items = createItems(images);
+            me.length = items.length;
+        }
+
+        function createItems(images)
+        {
+            var result = [];
+
+            for(var i = 0; i < images.length; i++)
+            {
+                if (typeof images[i] === "string")
+                {
+                    result.push(new QueueItem({
+                        src: images[i]
+                    }));
+                }
+                else if (typeof images[i] === "object")
+                {
+                    result.push(new QueueItem(images[i]));
+                }
+            }
+
+            return result;
+        }
+
+        return this;
+    }
+})();
+;(function(undefined) {
+    'use strict';
+
+    window.QueueItem = QueueItem;
+
+    function QueueItem(options)
+    {
+        if (!(this instanceof QueueItem))
+        {
+            return new QueueItem();
+        }
+
+        var STATUS = {
+            PENDING: "pending",
+            LOADING: "loading",
+            COMPLETE: "complete",
+            FAILED: "failed"
+        };
+
+        var me = this;
+
+        var onLoadCallback;
+
+        init();
+
+        me.load = function(onLoad)
+        {
+            onLoadCallback = onLoad;
+
+            setStatusLoading();
+
+            me.tag.addEventListener('load', onLoadHandler);
+            me.tag.addEventListener('error', onErrorHandler);
+
+            me.tag.src = me.src;
+        };
+
+        me.isPending = function () { return me.status === STATUS.PENDING; };
+        me.isComplete = function () { return me.status === STATUS.COMPLETE; };
+        me.isLoading = function () { return me.status === STATUS.LOADING; };
+        me.isFailed = function () { return me.status === STATUS.FAILED; };
+
+        function init()
+        {
+            setProperties();
+            setStatusPending();
+        }
+
+        function setProperties()
+        {
+            for(var property in options)
+            {
+                me[property] = options[property];
+            }
+
+            me.tag = document.createElement("img");
+        }
+
+        function setStatusFailed() { me.status = STATUS.FAILED; }
+        function setStatusComplete() { me.status = STATUS.COMPLETE; }
+        function setStatusLoading() { me.status = STATUS.LOADING; }
+        function setStatusPending() { me.status = STATUS.PENDING; }
+
+        function removeListeners()
+        {
+            me.tag.removeEventListener('load', onLoadHandler);
+            me.tag.removeEventListener('error', onErrorHandler);
+        }
+
+        function onLoadHandler(event)
+        {
+            if (QueueItem.simulationDelayMin)
+            {
+                setTimeout(function()
+                {
+                    finalizeOnLoad();
+
+                }, calculateSimulationDelay());
+            }
+            else
+            {
+                finalizeOnLoad();
+            }
+        }
+
+        function onErrorHandler(event)
+        {
+            if (QueueItem.simulationDelayMin)
+            {
+                setTimeout(function()
+                {
+                    finalizeOnError();
+
+                }, calculateSimulationDelay());
+            }
+            else
+            {
+                finalizeOnError();
+            }
+        }
+
+        function finalizeOnLoad()
+        {
+            removeListeners();
+            setStatusComplete();
+            handleLoadCallback();
+            onLoadCallback = undefined;
+        }
+
+        function finalizeOnError()
+        {
+            removeListeners();
+            me.tag = undefined;
+            setStatusFailed();
+            handleLoadCallback();
+            onLoadCallback = undefined;
+        }
+
+        function handleLoadCallback()
+        {
+            if (onLoadCallback)
+            {
+                onLoadCallback(me);
+            }
+        }
+
+        function calculateSimulationDelay()
+        {
+            var max = QueueItem.simulationDelayMax;
+            var min = QueueItem.simulationDelayMin;
+
+            return Math.floor(Math.random() * (max - min) + min);
+        }
+
+        return this;
+    }
+
+    QueueItem.setSimulationDelays = function(min, max)
+    {
+        var delayMin = min;
+        var delayMax = max;
+
+        if (delayMin && !delayMax)
+        {
+            delayMax = delayMin;
+        }
+        else if (delayMax && !delayMin)
+        {
+            delayMin = delayMax;
+        }
+
+        QueueItem.simulationDelayMin = delayMin;
+        QueueItem.simulationDelayMax = delayMax;
+    };
+})();
+;(function(undefined) {
+    'use strict';
+
+    window.Thread = Thread;
+
+    function Thread(options)
+    {
+        if (!(this instanceof Thread))
+        {
+            return new Thread(options);
+        }
+
+        var me = this;
+        var onThreadCompleteCallback;
+        var onFileCompleteCallback;
+        var onFileStartCallback;
+        var queue;
+
+        init();
+
+        function init()
+        {
+            onThreadCompleteCallback = options.onThreadComplete;
+            onFileCompleteCallback = options.onFileComplete;
+            onFileStartCallback = options.onFileStart;
+            queue = options.queue;
+
+            processNextItem();
+        }
+
+        function processNextItem()
+        {
+            var queueItem = queue.getNextPendingItem();
+
+            if (typeof queueItem === 'undefined')
+            {
+                onThreadCompleteCallback();
+            }
+            else
+            {
+                queueItem.load(onLoadHandler);
+                onFileStartCallback(queueItem);
+            }
+        }
+
+        function onLoadHandler(item)
+        {
+            onFileCompleteCallback(item);
+            processNextItem();
+        }
+
+        return this;
+    }
 })();

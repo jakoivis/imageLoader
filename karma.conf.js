@@ -12,11 +12,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'src/preloader.js',
-      'test/preloader.test.js',
-      {pattern: 'test/assets/*.png', watched: false, included: false, served: true}
+        'src/*.js',
+        'test/preloader.test.js',
+        {pattern: 'test/assets/*.png', watched: false, included: false, served: true}
     ],
-    
+
     proxies: {
       '/assets/': 'http://localhost:9876/base/test/assets/'
     },
@@ -31,7 +31,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-    
+
     },
 
 
