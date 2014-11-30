@@ -21,13 +21,13 @@ var uglify = require('gulp-uglify');
 // JS concat, strip debugging and minify
 gulp.task('scripts', function() {
   gulp.src(['./src/*.js'])
-    .pipe(concat('imagePreloader.min.js'))
+    .pipe(concat('imageloader.min.js'))
     .pipe(stripDebug())
     .pipe(uglify())
     .pipe(gulp.dest('./build/'));
 
   gulp.src(['./src/*.js'])
-    .pipe(concat('imagePreloader.js'))
+    .pipe(concat('imageloader.js'))
     .pipe(stripDebug())
     .pipe(gulp.dest('./build/'));
 });

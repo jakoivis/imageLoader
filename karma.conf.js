@@ -13,7 +13,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
         'src/*.js',
-        'test/preloader.test.js',
+        'test/ImageLoader.test.js',
         {pattern: 'test/assets/*.png', watched: false, included: false, served: true}
     ],
 
