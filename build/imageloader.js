@@ -1,28 +1,4 @@
 /*
-    Preloader version 1.1
-    preloader-1.1.js
-
-    The MIT License (MIT)
-
-    Copyright (c) 2014 Jarmo Koivisto
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
 
     features 1.0:
         - basic implementation: preload images
@@ -37,10 +13,10 @@
         - simulate loading time
         - onFileStart executed before a file starts loading
 
-    Preloader(options [object])
+    ImageLoader(options [object])
         options argument
             - images: [array] array of image file paths.
-            - autoload: [boolean] default true. whether to load immediately when Preloader instance is created.
+            - autoload: [boolean] default true. whether to load immediately when ImageLoader instance is created.
             - onComplete: [function()] called when everything has been loaded.
             - onFileComplete: [function(QueueItem)] called after each successfull or unsuccessfull load.
             - onFileStart: [function(QueueItem)] called before each load.
@@ -52,13 +28,13 @@
 ;(function(undefined) {
     'use strict';
 
-    window.Preloader = Preloader;
+    window.ImageLoader = ImageLoader;
 
-    function Preloader(options)
+    function ImageLoader(options)
     {
-        if (!(this instanceof Preloader))
+        if (!(this instanceof ImageLoader))
         {
-            return new Preloader(options);
+            return new ImageLoader(options);
         }
 
         var me = this;
@@ -277,6 +253,7 @@
     }
 
 })();
+
 ;(function(undefined) {
     'use strict';
 

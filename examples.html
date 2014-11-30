@@ -2,9 +2,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Preloader examples</title>
+<title>ImageLoader examples</title>
 
-<script src="js/preloader-1.1.js"></script>
+<script src="build/imageloader.min.js"></script>
 
 </head>
 <body>
@@ -17,14 +17,14 @@
             "test/assets/sample2_tb.png",
             "test/assets/sample3_tb.png"];
     }
-    
+
     function getImages_stringArray_lastFails() {
         return [
             "test/assets/sample1_tb.png",
             "test/assets/sample2_tb.png",
             "test/assets/samplex_tb.png"];
     }
-    
+
     function getImages_objectArray() {
         return [
             {src: "test/assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
@@ -32,7 +32,7 @@
             {src: "test/assets/sample3_tb.png", prop4:4.4}
         ];
     }
-    
+
     function getImages_objectArray_lastFails() {
         return [
             {src: "test/assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
@@ -40,7 +40,7 @@
             {src: "test/assets/samplex_tb.png", prop4:4.4}
         ];
     }
-    
+
     function getImages_objectArray_missingSrc() {
         return [
             {src: "test/assets/sample1_tb.png", prop1:"value1", prop2:"value2"},
@@ -48,33 +48,33 @@
             {src: "test/assets/sample1_tb.png", prop4:4.4}
         ];
     }
-    
+
     var images = getImages_stringArray();
-    
+
     function example1_basicUsage() {
-        var loader = new Preloader({images: images});
+        var loader = new ImageLoader({images: images});
     }
     //example1_basicUsage();
-    
+
     function example_autoloadSetting() {
-        var loader = new Preloader({images: images, autoload: false});
+        var loader = new ImageLoader({images: images, autoload: false});
             loader.load();
     }
     //example_autoloadSetting();
-    
+
     function example_isComplete() {
-        var loader = new Preloader({images:images});
+        var loader = new ImageLoader({images:images});
             loader.isComplete();
     }
     //example_isComplete()
 
     function example_callbacks() {
-        var loader = new Preloader({
+        var loader = new ImageLoader({
                             images:images,
                             onComplete:onComplete,
                             onFileComplete:onFileComplete,
                             onFileStart:onFileStart});
-        
+
         function onComplete() {
             console.log("onComplete");
         }
@@ -85,12 +85,12 @@
             console.log("onFileComplete: " + item.src);
         }
     }
-    
+
     example_callbacks();
-    
+
     function example_printProperties()
     {
-        var loader = new Preloader({
+        var loader = new ImageLoader({
                             images:images,
                             onComplete:onComplete,
                             onFileComplete:onFileComplete,
@@ -98,7 +98,7 @@
                             simulationDelayMin:500,
                             simulationDelayMax:1000,
                             numberOfThreads:1});
-        
+
         function onComplete() {
             console.log("onComplete");
         }
@@ -115,9 +115,9 @@
             }
         }
     }
-    
+
     //example_printProperties();
-    
+
 
 </script>
 </body>

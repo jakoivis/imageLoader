@@ -13,10 +13,10 @@
         - simulate loading time
         - onFileStart executed before a file starts loading
 
-    Preloader(options [object])
+    ImageLoader(options [object])
         options argument
             - images: [array] array of image file paths.
-            - autoload: [boolean] default true. whether to load immediately when Preloader instance is created.
+            - autoload: [boolean] default true. whether to load immediately when ImageLoader instance is created.
             - onComplete: [function()] called when everything has been loaded.
             - onFileComplete: [function(QueueItem)] called after each successfull or unsuccessfull load.
             - onFileStart: [function(QueueItem)] called before each load.
@@ -28,13 +28,13 @@
 ;(function(undefined) {
     'use strict';
 
-    window.Preloader = Preloader;
+    window.ImageLoader = ImageLoader;
 
-    function Preloader(options)
+    function ImageLoader(options)
     {
-        if (!(this instanceof Preloader))
+        if (!(this instanceof ImageLoader))
         {
-            return new Preloader(options);
+            return new ImageLoader(options);
         }
 
         var me = this;
