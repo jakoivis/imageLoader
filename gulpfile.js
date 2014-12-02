@@ -30,18 +30,18 @@ gulp.task('scripts', function() {
 		.pipe(gulp.dest('./build/'));
 });
 
-gulp.task("test", function() {
+// gulp.task("test", function() {
 
 
-    var karmaOptions = {
-        configFile: 'karma.conf.js',
-        action: 'run'
-    };
+//     var karmaOptions = {
+//         configFile: 'karma.conf.js',
+//         action: 'run'
+//     };
 
-    return gulp.src([sourceFiles, testFiles])
-        .pipe(gulp.dest('./coverage'))
-        .pipe(karma(karmaOptions));
-});
+//     return gulp.src([sourceFiles, testFiles])
+//         .pipe(gulp.dest('./coverage'))
+//         .pipe(karma(karmaOptions));
+// });
 
 
 

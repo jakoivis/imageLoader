@@ -141,32 +141,27 @@ describe("", function() {
 
     describe("options.autoload", function() {
 
-        it("onComplete is not executed if autoload = false and loading is not started", function(done) {
-            var onCompleteSpy = jasmine.createSpy('onComplete');
+        it("onComplete is not executed if autoload = false and loading is not started", function() {
+            // var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray();
-            var loader = new ImageLoader({images:images, onComplete:onCompleteSpy, autoload:false});
+            var loader = new ImageLoader({images:images, onComplete:onComplete, autoload:false});
 
-            // waits(TIMEOUT);
-
-            // runs(function () {
-                expect(onCompleteSpy).not.toHaveBeenCalled();
-            // });
-            done();
+            fail();
+            function onComplete() {
+                fail();
+            }
+            // expect(onCompleteSpy).not.toHaveBeenCalled();
         });
 
         it("load call starts the loading when autoload = false", function(done) {
-            var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray();
-            var loader = new ImageLoader({images:images, onComplete:onCompleteSpy, autoload:false});
+            var loader = new ImageLoader({images:images, onComplete:onComplete, autoload:false});
 
             loader.load();
 
-            // waitForComplete(loader);
-
-            // runs(function () {
-                expect(onCompleteSpy).toHaveBeenCalled();
-            // });
-            done();
+            function onComplete() {
+                done();
+            }
         });
     });
 
