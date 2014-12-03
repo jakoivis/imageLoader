@@ -142,26 +142,21 @@ describe("", function() {
     describe("options.autoload", function() {
 
         it("onComplete is not executed if autoload = false and loading is not started", function() {
-            // var onCompleteSpy = jasmine.createSpy('onComplete');
+            var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray();
-            var loader = new ImageLoader({images:images, onComplete:onComplete, autoload:false});
+            var loader = new ImageLoader({images:images, onComplete:onCompleteSpy, autoload:false});
 
-            fail();
-            function onComplete() {
-                fail();
-            }
-            // expect(onCompleteSpy).not.toHaveBeenCalled();
+            expect(onCompleteSpy).not.toHaveBeenCalled();
         });
 
         it("load call starts the loading when autoload = false", function(done) {
+            var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray();
-            var loader = new ImageLoader({images:images, onComplete:onComplete, autoload:false});
+            var loader = new ImageLoader({images:images, onComplete:onCompleteSpy, autoload:false});
 
             loader.load();
 
-            function onComplete() {
-                done();
-            }
+            expect(onCompleteSpy).toHaveBeenCalled();
         });
     });
 

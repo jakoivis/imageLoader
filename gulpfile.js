@@ -1,5 +1,6 @@
 var sourceFiles = './src/*.js';
 var testFiles = './test/*.test.js';
+var imageFiles = './test/assets/*.png';
 
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
@@ -7,7 +8,6 @@ var changed = require('gulp-changed');
 var concat = require('gulp-concat');
 var stripDebug = require('gulp-strip-debug');
 var uglify = require('gulp-uglify');
-// var istanbul = require('gulp-istanbul');
 var jasmine = require('karma-jasmine');
 var karma = require('gulp-karma');
 
@@ -39,10 +39,20 @@ gulp.task("test", function() {
     };
 
     return gulp.src([sourceFiles, testFiles])
-        // .pipe(gulp.dest('./coverage'))
-        .pipe(karma(karmaOptions));
+        .pipe(karma(karmaOptions))
+		.on('error', function (err) {
+			throw err;
+		});
 });
 
+
+gulp.task('watch-test', function() {
+  gulp.src(testFiles)
+    .pipe(karma({
+      configFile: 'karma.conf.js',
+      action: 'watch'
+    }));
+});
 
 
 gulp.task('default', ['scripts'], function() {
