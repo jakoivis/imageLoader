@@ -11,6 +11,10 @@ var uglify = require('gulp-uglify');
 var jasmine = require('karma-jasmine');
 var karma = require('gulp-karma');
 
+// var server = require('gulp-develop-server');
+// var webserver = require('gulp-webserver');
+var connect = require('gulp-connect');
+
 gulp.task('jshint', function() {
 	gulp.src(sourceFiles)
 		.pipe(jshint())
@@ -30,8 +34,24 @@ gulp.task('scripts', function() {
 		.pipe(gulp.dest('./build/'));
 });
 
-gulp.task("test", function() {
+// gulp.task('test-server:start', function() {
+	// server.listen({path: './test/server.js'});
+// });
 
+// gulp.task('webserver', function() {
+//   gulp.src('./test/server.js')
+//     .pipe(webserver({
+//       livereload: true,
+//       directoryListing: true,
+//       open: true
+//     }));
+// });
+
+gulp.task('test-resource-server', function() {
+	connect.server({port: 8080})
+});
+
+gulp.task("test", ['test-resource-server'], function() {
 
     var karmaOptions = {
         configFile: 'karma.conf.js',
@@ -42,7 +62,8 @@ gulp.task("test", function() {
         .pipe(karma(karmaOptions))
 		.on('error', function (err) {
 			throw err;
-		});
+		})//
+		//.pipe(connect.serverClose());
 });
 
 

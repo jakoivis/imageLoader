@@ -17,14 +17,15 @@ module.exports = function(config) {
         {pattern: 'test/assets/*.png', watched: false, included: false, served: true}
     ],
 
-    proxies: {
-      // '/assets/': 'http://localhost/assets/base/test/assets/'
-      '/assets/': 'http://localhost/assets/assets/'
 
+    // needs additional server serving the assets
+    // http://stackoverflow.com/questions/21067710/how-to-fix-404-warnings-for-images-during-karma-unit-testing
+    proxies: {
+        // '/assets/': 'https://github.com/jakoivis/imageLoader/tree/master/test/assets/'
+        '/assets/': 'http://localhost:8080/test/assets/'
     },
 
-// needs additional server serving the assets
-//http://stackoverflow.com/questions/21067710/how-to-fix-404-warnings-for-images-during-karma-unit-testing
+
 
     // list of files to exclude
     exclude: [
@@ -64,8 +65,8 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    // browsers: ['PhantomJS'],
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
+    // browsers: ['Chrome'],
 
 
     // Continuous Integration mode
