@@ -10,9 +10,6 @@ var stripDebug = require('gulp-strip-debug');
 var uglify = require('gulp-uglify');
 var jasmine = require('karma-jasmine');
 var karma = require('gulp-karma');
-
-// var server = require('gulp-develop-server');
-// var webserver = require('gulp-webserver');
 var connect = require('gulp-connect');
 
 gulp.task('jshint', function() {
@@ -34,24 +31,9 @@ gulp.task('scripts', function() {
 		.pipe(gulp.dest('./build/'));
 });
 
-// gulp.task('test-server:start', function() {
-	// server.listen({path: './test/server.js'});
-// });
+gulp.task('test', function() {
 
-// gulp.task('webserver', function() {
-//   gulp.src('./test/server.js')
-//     .pipe(webserver({
-//       livereload: true,
-//       directoryListing: true,
-//       open: true
-//     }));
-// });
-
-gulp.task('test-resource-server', function() {
-	connect.server({port: 8080})
-});
-
-gulp.task("test", ['test-resource-server'], function() {
+	connect.server({port: 8080});
 
     var karmaOptions = {
         configFile: 'karma.conf.js',
@@ -60,21 +42,13 @@ gulp.task("test", ['test-resource-server'], function() {
 
     return gulp.src([sourceFiles, testFiles])
         .pipe(karma(karmaOptions))
+		.on('end', function () {
+			connect.serverClose();
+		})
 		.on('error', function (err) {
 			throw err;
-		})//
-		//.pipe(connect.serverClose());
+		})
 });
-
-
-gulp.task('watch-test', function() {
-  gulp.src(testFiles)
-    .pipe(karma({
-      configFile: 'karma.conf.js',
-      action: 'watch'
-    }));
-});
-
 
 gulp.task('default', ['scripts'], function() {
 

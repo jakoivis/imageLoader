@@ -21,7 +21,6 @@ module.exports = function(config) {
     // needs additional server serving the assets
     // http://stackoverflow.com/questions/21067710/how-to-fix-404-warnings-for-images-during-karma-unit-testing
     proxies: {
-        // '/assets/': 'https://github.com/jakoivis/imageLoader/tree/master/test/assets/'
         '/assets/': 'http://localhost:8080/test/assets/'
     },
 
@@ -36,15 +35,20 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-
+        'src/*.js': ['coverage']
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
 
+
+    coverageReporter: {
+        type : 'html',
+        dir : 'coverage/'
+    },
 
     // web server port
     port: 9876,
