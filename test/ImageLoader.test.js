@@ -151,11 +151,11 @@ describe("", function() {
 
         it("load call starts the loading when autoload = false", function(done) {
             var images = getImages_stringArray();
-            var loader = new ImageLoader({images:images, onComplete:onComplete, autoload:false});
+            var loader = new ImageLoader({images:images, onComplete: complete, autoload:false});
 
             loader.load();
 
-            function onComplete() {
+            function complete() {
                 done();
             }
         });
@@ -190,225 +190,218 @@ describe("", function() {
         });
     });
 
-    xdescribe("options.onComplete", function() {
+    describe("options.onComplete", function() {
 
-        it("is executed once when everything has been loaded", function(done) {
+        it("is executed once", function(done) {
+            var onCompleteSpy = jasmine.createSpy('onComplete');
+            var images = getImages_stringArray();
+            var loader = new ImageLoader({images:images, onComplete: onCompleteSpy});
+
+            waitLoaderComplete(loader, function() {
+                expect(onCompleteSpy.calls.count()).toEqual(1);
+                done();
+            });
+        });
+
+        it("all itmes should be complete", function(done) {
             var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray();
             var loader = new ImageLoader({images:images, onComplete:onCompleteSpy});
 
-            waitLoaderComplete(loader, complete)
-
-            function complete()
-            {
-                expect(onCompleteSpy.calls.count()).toEqual(1);
-
+            waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
-                for (var i = 0; i < queue.length; i++)
-                {
+                for (var i = 0; i < queue.length; i++) {
                     expect(queue.get(i).isComplete()).toEqual(true);
                 }
 
                 done();
-            }
+            });
 
-            // waitForComplete(loader);
 
-            // runs(function () {
-            //     expect(onCompleteSpy.callCount).toEqual(1);
-
-            //     var queue = loader.getQueue();
-
-            //     for (var i = 0; i < queue.length; i++)
-            //     {
-            //         expect(queue.get(i).isComplete()).toEqual(true);
-            //     }
-            // });
         });
 
-        xit("is also executed for failing last file", function() {
+        it("is also executed for failing last file", function(done) {
             var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray_lastFails();
             var loader = new ImageLoader({images:images, onComplete:onCompleteSpy});
 
-            waitForComplete(loader);
-
-            runs(function () {
-                expect(onCompleteSpy.callCount).toEqual(1);
+            waitLoaderComplete(loader, function () {
+                expect(onCompleteSpy.calls.count()).toEqual(1);
+                done();
             });
         });
     });
 
-    xdescribe("options.onFileComplete", function() {
-        it("has ImageLoader instance as an argument", function() {
+    describe("options.onFileComplete", function() {
+
+        it("has ImageLoader instance as an argument", function(done) {
             var onFileCompleteSpy = jasmine.createSpy('onFileComplete');
             var images = getImages_stringArray();
             var loader = new ImageLoader({images:images, onFileComplete:onFileCompleteSpy});
 
-            waitForComplete(loader);
-
-            runs(function () {
-                var queueItem = onFileCompleteSpy.mostRecentCall.args[0];
+            waitLoaderComplete(loader, function() {
+                var queueItem = onFileCompleteSpy.calls.mostRecent().args[0];
                 assertIsQueueItemObject(queueItem);
+
+                done();
             });
         });
 
-        it("is executed after each successfull or unsuccessfull load", function() {
+        it("is executed after each successfull or unsuccessfull load", function(done) {
             var images = getImages_stringArray();
-            var loader = new ImageLoader({images:images, onFileComplete:onFileComplete});
+            var loader = new ImageLoader({images:images, onFileComplete: fileComplete});
 
-            waitForComplete(loader);
+            waitLoaderComplete(loader, function() {
+                done();
+            });
 
-            function onFileComplete(item) {
+            function fileComplete(item) {
                 expect(item.isComplete()).toEqual(true);
             }
         });
 
-        it("is executed correct number of times", function() {
+        it("is executed correct number of times", function(done) {
             var onFileCompleteSpy = jasmine.createSpy('onFileComplete');
             var images = getImages_stringArray_lastFails();
             var loader = new ImageLoader({images:images, onFileComplete:onFileCompleteSpy});
 
-            waitForComplete(loader);
-
-            runs(function () {
-                expect(onFileCompleteSpy.callCount).toEqual(3);
+            waitLoaderComplete(loader, function() {
+                expect(onFileCompleteSpy.calls.count()).toEqual(3);
+                done();
             });
         });
     });
 
-    xdescribe("options.onFileStart", function() {
-        it("has QueueItem instance as an argument", function() {
+    describe("options.onFileStart", function() {
+
+        it("has QueueItem instance as an argument", function(done) {
             var onFileStartSpy = jasmine.createSpy('onFileStart');
             var images = getImages_stringArray();
             var loader = new ImageLoader({images:images, onFileStart:onFileStartSpy});
 
-            waitForComplete(loader);
-
-            runs(function () {
-                var queueItem = onFileStartSpy.mostRecentCall.args[0];
+            waitLoaderComplete(loader, function() {
+                var queueItem = onFileStartSpy.calls.mostRecent().args[0];
                 assertIsQueueItemObject(queueItem);
+                done();
             });
         });
 
-        it("is executed before each successfull or unsuccessfull load", function() {
+        it("is executed before each successfull or unsuccessfull load", function(done) {
             var images = getImages_stringArray_lastFails();
-            var loader = new ImageLoader({images:images, onFileStart:onFileStart});
+            var loader = new ImageLoader({images:images, onFileStart:fileStart});
 
-            waitForComplete(loader);
+            waitLoaderComplete(loader, function() {
+                done();
+            });
 
-            function onFileStart(item) {
+            function fileStart(item) {
                 expect(item.isLoading()).toEqual(true);
             }
         });
     });
 
-    xdescribe("ImageLoader.getQueue", function() {
-        it("should return correct number of items", function() {
+    describe("ImageLoader.getQueue", function() {
+
+        it("should return correct number of items", function(done) {
             var images = getImages_objectArray_lastFails();
-            var loader = new ImageLoader({images:images, onFileComplete: onFileComplete, autoload:false});
+            var loader = new ImageLoader({images:images, onFileComplete: fileComplete, autoload:false});
             var result = [loader.getQueue().length];
 
             loader.load();
-            waitForComplete(loader);
 
-            function onFileComplete(item)
-            {
-                result.push(loader.getQueue().length);
-            }
-
-            runs(function(){
+            waitLoaderComplete(loader, function() {
                 expect(result [0]).toEqual(3);
                 expect(result [1]).toEqual(3);
                 expect(result [2]).toEqual(3);
                 expect(result [3]).toEqual(3);
+                done();
             });
+
+            function fileComplete(item) {
+                result.push(loader.getQueue().length);
+            }
         });
     });
 
-    xdescribe("Returned data", function() {
-        it("Should have tag property holding the image tag, except the failing ones", function() {
+    describe("Returned data", function() {
+
+        it("Should have tag property holding the image tag, except the failing ones", function(done) {
             var images = getImages_stringArray_lastFails();
             var loader = new ImageLoader({images:images});
 
-            waitForComplete(loader);
-
-            runs(function () {
+            waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
                 expect(queue.get(0).tag.nodeName).toEqual("IMG");
                 expect(queue.get(1).tag.nodeName).toEqual("IMG");
                 expect(queue.get(2).tag).toEqual(undefined);
+
+                done();
             });
         });
 
-        it("Should have properties property holding the original information", function() {
+        it("Should have properties property holding the original information", function(done) {
             var images = getImages_objectArray_lastFails();
             var loader = new ImageLoader({images:images});
 
-            waitForComplete(loader);
-
-            runs(function () {
+            waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
-                for(var i = 0; i < images.length; i++)
-                {
-                    for(var property in images[i])
-                    {
+                for(var i = 0; i < images.length; i++) {
+
+                    for(var property in images[i]) {
+
                         expect(queue.get(i).hasOwnProperty(property)).toEqual(true);
                         expect(queue.get(i)[property]).toEqual(images[i][property]);
                     }
                 }
+
+                done();
             });
         });
 
-        it("Should have src property", function() {
+        it("Should have src property", function(done) {
             var images = getImages_objectArray_lastFails();
             var loader = new ImageLoader({images:images});
 
-            waitForComplete(loader);
-
-            runs(function () {
+            waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
                 expect(queue.get(0).src).toEqual(images[0].src);
                 expect(queue.get(1).src).toEqual(images[1].src);
                 expect(queue.get(2).src).toEqual(images[2].src);
+
+                done();
             });
         });
 
-        it("Should have status property", function() {
+        it("Should have status property", function(done) {
             var images = getImages_objectArray_lastFails();
             var loader = new ImageLoader({images:images});
 
-            waitForComplete(loader);
-
-            runs(function () {
+            waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
                 expect(queue.get(0).status).toEqual("complete");
                 expect(queue.get(1).status).toEqual("complete");
                 expect(queue.get(2).status).toEqual("failed");
+
+                done();
             });
         });
     });
 
-    xdescribe("Loading statistics", function() {
-        it("percent to loaded", function() {
+    describe("Loading statistics", function() {
+
+        it("percent to loaded", function(done) {
             var images = getImages_objectArray();
-            var loader = new ImageLoader({images:images, onFileComplete: onFileComplete, autoload:false});
+            var loader = new ImageLoader({images:images, onFileComplete: fileComplete, autoload:false});
             var result = [loader.getPercentLoaded()];
 
             loader.load();
-            waitForComplete(loader);
 
-            function onFileComplete(item)
-            {
-                result.push(loader.getPercentLoaded());
-            }
-
-            runs(function(){
+            waitLoaderComplete(loader, function() {
                 expect(result.length).toEqual(4);
 
                 var result0Fixed = result[0].toFixed(3);
@@ -420,50 +413,55 @@ describe("", function() {
                 expect(result1Fixed).toEqual("0.333");
                 expect(result2Fixed).toEqual("0.667");
                 expect(result3Fixed).toEqual("1.000");
+
+                done();
             });
+
+            function fileComplete(item) {
+                result.push(loader.getPercentLoaded());
+            }
         });
     });
 
-    xdescribe("numberOfThreads:", function() {
+    describe("numberOfThreads:", function() {
 
-        it("loading should be done in sequence and loading order shold be preserved (1 thread)", function() {
+        it("loading should be done in sequence and loading order shold be preserved (1 thread)", function(done) {
             // add simulation delay to mix up the finishing times
             var images = getImages_stringArray().concat(getImages_stringArray());
-            var loader = new ImageLoader({images:images, onFileComplete:onFileComplete, numberOfThreads:1, simulationDelayMin:25, simulationDelayMax:100});
+            var loader = new ImageLoader({images:images, onFileComplete: fileComplete, numberOfThreads:1, simulationDelayMin:25, simulationDelayMax:100});
             var result = [];
 
-            waitForComplete(loader, 2000);
+            waitLoaderComplete(loader, function() {
 
-            function onFileComplete(item)
-            {
-                result.push(item.src);
-            }
-
-            runs(function(){
                 for(var i = 0; i < images.length; i++) {
                     expect(result[i]).toEqual(images[i]);
                 }
+
+                done();
             });
+
+            function fileComplete(item) {
+                result.push(item.src);
+            }
         });
 
-        it("final order should be preserved (3 thread)", function() {
+        it("final order should be preserved (3 thread)", function(done) {
             // add simulation delay to mix up the finishing times
             var images = getImages_stringArray().concat(getImages_stringArray());
             var loader = new ImageLoader({images:images, numberOfThreads:3, simulationDelayMin:25, simulationDelayMax:100});
 
-            waitForComplete(loader, 2000);
-
-            runs(function(){
+            waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
-                for(var i = 0; i < images.length; i++)
-                {
+                for(var i = 0; i < images.length; i++) {
                     expect(images[i]).toEqual(queue.get(i).src);
                 }
+
+                done();
             });
         });
 
-        it("Number of threads is grater than number of images", function() {
+        it("Number of threads is grater than number of images", function(done) {
             var onFileCompleteSpy = jasmine.createSpy('onFileComplete');
             var onCompleteSpy = jasmine.createSpy('onComplete');
             var onFileStartSpy = jasmine.createSpy('onFileStart');
@@ -473,18 +471,18 @@ describe("", function() {
                                        onComplete:onCompleteSpy, onFileComplete:onFileCompleteSpy,
                                        onFileStart:onFileStartSpy});
 
-            waitForComplete(loader, 2000);
-
-            runs(function(){
-                expect(onCompleteSpy.callCount).toEqual(1);
-                expect(onFileCompleteSpy.callCount).toEqual(3);
-                expect(onFileStartSpy.callCount).toEqual(3);
+            waitLoaderComplete(loader, function() {
+                expect(onCompleteSpy.calls.count()).toEqual(1);
+                expect(onFileCompleteSpy.calls.count()).toEqual(3);
+                expect(onFileStartSpy.calls.count()).toEqual(3);
+                done();
             });
         });
     });
 
-    xdescribe("General functionality", function() {
-        it("Modified arrays and objects should not affect the loader", function() {
+    describe("General functionality", function() {
+
+        it("Modified arrays and objects should not affect the loader", function(done) {
             var images = getImages_stringArray_lastFails();
             var loader = new ImageLoader({images:images, autoload:false});
 
@@ -494,67 +492,44 @@ describe("", function() {
             // then execute load. the changes should not be included in the ImageLoader
             loader.load();
 
-            waitForComplete(loader);
-
-            runs(function () {
+            waitLoaderComplete(loader, function() {
                 expect(loader.getQueue().length).toEqual(3);
+                done();
             });
         });
 
-        it("ImageLoader.load does nothing when called during loading", function() {
+        it("ImageLoader.load does nothing when called during loading", function(done) {
             var onFileCompleteSpy = jasmine.createSpy('onFileComplete');
             var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray_lastFails();
             var loader = new ImageLoader({images:images, onFileComplete:onFileCompleteSpy, onComplete:onCompleteSpy});
 
-            waitForComplete(loader);
+            loader.load();
 
-            runs(function () {
-                expect(onCompleteSpy.callCount).toEqual(1);
-                expect(onFileCompleteSpy.callCount).toEqual(3);
+            waitLoaderComplete(loader, function() {
+                expect(onCompleteSpy.calls.count()).toEqual(1);
+                expect(onFileCompleteSpy.calls.count()).toEqual(3);
+                done();
             });
         });
 
-        it("ImageLoader.load does nothing when called after loading", function() {
+        it("ImageLoader.load does nothing when called after loading", function(done) {
             var onFileCompleteSpy = jasmine.createSpy('onFileComplete');
             var onCompleteSpy = jasmine.createSpy('onComplete');
             var images = getImages_stringArray_lastFails();
             var loader = new ImageLoader({images:images, onFileComplete:onFileCompleteSpy, onComplete:onCompleteSpy});
 
-            waitForComplete(loader);
-
-            runs(function () {
+            waitLoaderComplete(loader, function() {
                 loader.load();
 
-                waitForComplete(loader);
-
-                runs(function () {
-                    expect(onCompleteSpy.callCount).toEqual(1);
-                    expect(onFileCompleteSpy.callCount).toEqual(3);
+                waitLoaderComplete(loader, function() {
+                    expect(onCompleteSpy.calls.count()).toEqual(1);
+                    expect(onFileCompleteSpy.calls.count()).toEqual(3);
+                    done();
                 });
             });
         });
     });
-
-    function waitForComplete(loader, timeout)
-    {
-        var startTime = new Date().getTime();
-
-        waitsFor(function() {
-            return loader.isComplete();
-        }, "all files to load", timeout || TIMEOUT);
-
-        var intervalId = setInterval(function () {
-            if(loader.isComplete())
-            var currentTime = new Date().getTime();
-            var elapsed = currentTime - startTime;
-
-            if(currentTime > timeout) {
-                // clear timer exit
-            }
-
-        }, 20);
-    }
 
     function assertIsQueueItemObject(item)
     {
@@ -588,14 +563,11 @@ describe("", function() {
             {
                 clearInterval(intervalId);
                 callback();
-                console.log("success, call count: " + i);
             }
 
             if(hasElapsed())
             {
-                console.log(obj[method]());
                 clearInterval(intervalId);
-                console.log("elapsed, call count: " + i);
             }
         }
 
