@@ -17,9 +17,13 @@ module.exports = function(config) {
         {pattern: 'test/assets/*.png', watched: false, included: false, served: true}
     ],
 
+
+    // needs additional server serving the assets
+    // http://stackoverflow.com/questions/21067710/how-to-fix-404-warnings-for-images-during-karma-unit-testing
     proxies: {
-      '/assets/': 'http://localhost:9876/base/test/assets/'
+        '/assets/': 'http://localhost:8080/test/assets/'
     },
+
 
 
     // list of files to exclude
@@ -31,15 +35,20 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-
+        'src/*.js': ['coverage']
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
 
+
+    coverageReporter: {
+        type : 'html',
+        dir : 'coverage/'
+    },
 
     // web server port
     port: 9876,
@@ -61,7 +70,7 @@ module.exports = function(config) {
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['PhantomJS'],
-    //browsers: ['Chrome'],
+    // browsers: ['Chrome'],
 
 
     // Continuous Integration mode

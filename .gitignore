@@ -1,6 +1,7 @@
 #project files
 node_modules
 npm-debug.log
+coverage
 
 # Windows image file caches
 Thumbs.db
@@ -30,7 +31,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
