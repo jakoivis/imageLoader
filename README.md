@@ -3,46 +3,54 @@ Documentation is incomplete
 #imageLoader
 JavaScript image preloader
 
-##Options
-######images:
-Array of image file paths.
-######autoload:
-Whether to load immediately when `ImageLoader` instance is created.
-Default `true`
-######onComplete:
-Callback function that is called when everything has been loaded.
-######onFileComplete:
-Callback function that is called after each successfull or unsuccessfull load.
-######onFileStart:
-Callback function that called before each load.
-######numberOfThreads:
-Number of threads used for preloading.
-######simulationDelayMin:
-When specified a download simulation time delay will be added. Specified in milliseconds.
-######simulationDelayMax:
-When specified a download simulation time delay will be added. Specified in milliseconds.
+##ImageLoader options
+Property name       | Default           | Description
+-------------       | -------           | -----------
+**images**          |                   | Array of image file paths.
+**autoload**        | `true`            | Whether to load immediately when `ImageLoader` instance is created. 
+**onComplete**      |                   | Callback function that is called when everything has been loaded.
+**onFileComplete**  |                   | Callback function that is called after each successfull or unsuccessfull load.
+**onFileStart**     |                   | Callback function that called before each load.
+**numberOfThreads** |                   | Number of threads used for preloading.
+**simulationDelayMin**|                 | When specified a download simulation time delay will be added. Specified in milliseconds.
+**simulationDelayMax**|                 | When specified a download simulation time delay will be added. Specified in milliseconds.
 
 ##Public interface
+
 ###ImageLoader
-######load()
-######isComplete()
-######getQueue()
-######getPercentLoaded()
+Function | Description
+-------- | -----------
+**load()** | 
+**isComplete()** |
+**getQueue()** |
+**getPercentLoaded()** |
+
 ###Queue
-######length
-######get(index)
-######isComplete()
-######getNextPendingItem()
-######getPercentLoaded()
+Property | Description
+-------- | -----------
+**length** | 
+
+Function | Description
+-------- | -----------
+**get(index)** |
+**isComplete()** |
+**getNextPendingItem()** |
+**getPercentLoaded()** |
+
 ###QueueItem
-######status
-######tag
-######src
-######load(onLoadCallback)
-######isPending
-######isComplete
-######isLoading
-######isFailed
+Property | Description
+-------- | -----------
+**status** |
+**tag** |
+**src** |
+
+Function | Description
+-------- | -----------
+**load(onLoadCallback)** |
+**isPending** |
+**isComplete** |
+**isLoading** |
+**isFailed** |
 
 ## Examples
 ######Basic usage
