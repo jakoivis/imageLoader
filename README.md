@@ -20,37 +20,37 @@ Property name       | Default           | Description
 ###ImageLoader
 Function | Description
 -------- | -----------
-**load()** | 
-**isComplete()** |
-**getQueue()** |
-**getPercentLoaded()** |
+**load()** | Start loading. This needs to be called only if the `autoload` option is set to false.
+**isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
+**getQueue()** | Returns `Queue` object.
+**getPercentLoaded()** | Returns percentage loaded. Same as in Queue object. **TODO: just remove this** 
 
 ###Queue
 Property | Description
 -------- | -----------
-**length** | 
+**length** | Number of items in queue.
 
 Function | Description
 -------- | -----------
-**get(index)** |
-**isComplete()** |
-**getNextPendingItem()** |
-**getPercentLoaded()** |
+**get(index)** | Returns the `QueueItem` object at the specified index.
+**isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
+**getNextPendingItem()** | Used internally only. **TODO does it have to be documented?**
+**getPercentLoaded()** | Returns percentage loaded.
 
 ###QueueItem
 Property | Description
 -------- | -----------
-**status** |
-**tag** |
-**src** |
+**status** | Status of the image load. Use `isPending`, `isComplete`, `isLoading` and `isFailed` functions to test the status. 
+**tag** | IMG tag if the image.
+**src** | Source of the image.
 
 Function | Description
 -------- | -----------
-**load(onLoadCallback)** |
-**isPending** |
-**isComplete** |
-**isLoading** |
-**isFailed** |
+**load(onLoadCallback)** | Used internally only. **TODO does it have to be documented?**
+**isPending()** | Returns `true` if status is `"pending"`
+**isComplete()** | Returns `true` if status is `"complete"`
+**isLoading()** | Returns `true` if status is `"loading"`
+**isFailed()** | Returns `true` if status is `"failed"`
 
 ## Examples
 ######Basic usage
