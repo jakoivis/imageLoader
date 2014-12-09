@@ -19,18 +19,9 @@ Function | Description
 -------- | -----------
 **load()** | Start loading. This needs to be called only if the `autoload` option is set to false.
 **isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
-**getQueue()** | Returns `Queue` object.
-
-###Queue
-Property | Description
--------- | -----------
-**length** | Number of items in queue.
-
-Function | Description
--------- | -----------
 **getItemAt(index)** | Returns the `QueueItem` object at the specified index.
-**isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
 **getPercentLoaded()** | Returns percentage loaded.
+**length()** | Number of items
 
 ###QueueItem
 Property | Description
