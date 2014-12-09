@@ -21,11 +21,11 @@
 
         init(options);
 
-        me.getQueue = function() { return queue; };
-
         me.load = load;
-
         me.isComplete = isComplete;
+        me.getPercentLoaded = getPercentLoaded;
+        me.getItemAt = getItemAt;
+        me.length = length;
 
         function init(options)
         {
@@ -218,6 +218,21 @@
         function isComplete()
         {
             return queue.isComplete();
+        }
+
+        function getPercentLoaded()
+        {
+            return queue.getPercentLoaded();
+        }
+
+        function getItemAt(index)
+        {
+            return queue.getItemAt(index);
+        }
+
+        function length()
+        {
+            return queue.length;
         }
 
         return this;
