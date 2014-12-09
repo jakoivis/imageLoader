@@ -28,7 +28,7 @@ Property | Description
 
 Function | Description
 -------- | -----------
-**get(index)** | Returns the `QueueItem` object at the specified index.
+**getItemAt(index)** | Returns the `QueueItem` object at the specified index.
 **isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
 **getPercentLoaded()** | Returns percentage loaded.
 
