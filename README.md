@@ -1,9 +1,6 @@
-Documentation is incomplete
+JavaScript image loader for preloading images.
 
-#imageLoader
-JavaScript image preloader
-
-##ImageLoader options
+#ImageLoader options
 Property name       | Default           | Description
 -------------       | -------           | -----------
 **images**          |                   | Array of strings or array of objects. When specifying array of strings, each string in the array is a path to the image file. e.g. `["/path/to/image", ...]` When specifying array of objects, each object must have src property which is a path to the image file. e.g. `[{src:"/path/to/image", someProperty:"user's data"}, ...]` 
@@ -23,7 +20,6 @@ Function | Description
 **load()** | Start loading. This needs to be called only if the `autoload` option is set to false.
 **isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
 **getQueue()** | Returns `Queue` object.
-**getPercentLoaded()** | Returns percentage loaded. Same as in Queue object. **TODO: just remove this** 
 
 ###Queue
 Property | Description
@@ -34,19 +30,17 @@ Function | Description
 -------- | -----------
 **get(index)** | Returns the `QueueItem` object at the specified index.
 **isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
-**getNextPendingItem()** | Used internally only. **TODO does it have to be documented?**
 **getPercentLoaded()** | Returns percentage loaded.
 
 ###QueueItem
 Property | Description
 -------- | -----------
 **status** | Status of the image load. Use `isPending`, `isComplete`, `isLoading` and `isFailed` functions to test the status. 
-**tag** | IMG tag if the image.
+**tag** | IMG tag.
 **src** | Source of the image.
 
 Function | Description
 -------- | -----------
-**load(onLoadCallback)** | Used internally only. **TODO does it have to be documented?**
 **isPending()** | Returns `true` if status is `"pending"`
 **isComplete()** | Returns `true` if status is `"complete"`
 **isLoading()** | Returns `true` if status is `"loading"`
@@ -65,6 +59,7 @@ When setting the `autoload` option to `false`, `load` function can be called to 
 ```js
 var images = ["/assets/sample1_tb.png", "/assets/sample2_tb.png"]
 var loader = new ImageLoader({images: images, autoload: false});
+// do something...
 loader.load();
 ```
 
@@ -78,17 +73,31 @@ var loader = new ImageLoader({
                     onFileStart:onFileStart});
 
 function onComplete() {
-    console.log("onComplete");
+    console.log("Everything has been loaded");
 }
 function onFileStart(item) {
     console.log("onFileStart: " + item.src);
 }
 function onFileComplete(item) {
     console.log("onFileComplete: " + item.src);
+    document.body.appendChild(item.tag);
 }
 ```
 
 ######Using custom properties in images object
+All the properties of image objects will be be accessible in the onFileComplete callback. Those properties are copied to the `QueueItem` objects.
+```js
+var images = [
+    {src:"/assets/sample1_tb.png", someProperty:"someValue1"},
+    {src:"/assets/sample2_tb.png", someProperty:"someValue2"}
+];
+var loader = new ImageLoader({images:images, onFileComplete:onFileComplete});
+
+function onFileComplete(item) {
+    console.log("onFileComplete: " + item.src);
+    console.log("someProperty: " + item.someProperty);
+}
+```
 
 ######SimulationDelayMin & SimulationDelayMax
 ```js
@@ -101,6 +110,7 @@ var loader = new ImageLoader({
 
 function onFileComplete(item) {
     console.log("onFileComplete: " + item.src);
+    document.body.appendChild(item.tag);
 }
 ```
 
