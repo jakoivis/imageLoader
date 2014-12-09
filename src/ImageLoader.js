@@ -1,30 +1,3 @@
-/*
-
-    features 1.0:
-        - basic implementation: preload images
-        - hold custom paramters for each image
-        - callback executed when everything has been loaded
-        - callback executed after a file has been loaded
-
-    features 1.1
-        - loading threads
-        - loading order is preserved.
-        - examples
-        - simulate loading time
-        - onFileStart executed before a file starts loading
-
-    ImageLoader(options [object])
-        options argument
-            - images: [array] array of image file paths.
-            - autoload: [boolean] default true. whether to load immediately when ImageLoader instance is created.
-            - onComplete: [function()] called when everything has been loaded.
-            - onFileComplete: [function(QueueItem)] called after each successfull or unsuccessfull load.
-            - onFileStart: [function(QueueItem)] called before each load.
-            - numberOfThreads: [int] number of threads used for preloading.
-            - simulationDelayMin: [int] When specified a download simulation time delay will be added. Specified in milliseconds.
-            - simulationDelayMax: [int] When specified a download simulation time delay will be added. Specified in milliseconds.
-*/
-
 ;(function(undefined) {
     'use strict';
 
@@ -49,8 +22,6 @@
         init(options);
 
         me.getQueue = function() { return queue; };
-
-        me.getPercentLoaded = function() { return queue.getPercentLoaded(); };
 
         me.load = load;
 

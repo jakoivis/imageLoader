@@ -17,7 +17,7 @@
 
         init();
 
-        me.get = function(index)
+        me.getItemAt = function(index)
         {
             return items[index];
         };

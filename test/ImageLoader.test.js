@@ -212,7 +212,7 @@ describe("", function() {
                 var queue = loader.getQueue();
 
                 for (var i = 0; i < queue.length; i++) {
-                    expect(queue.get(i).isComplete()).toEqual(true);
+                    expect(queue.getItemAt(i).isComplete()).toEqual(true);
                 }
 
                 done();
@@ -333,9 +333,9 @@ describe("", function() {
             waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
-                expect(queue.get(0).tag.nodeName).toEqual("IMG");
-                expect(queue.get(1).tag.nodeName).toEqual("IMG");
-                expect(queue.get(2).tag).toEqual(undefined);
+                expect(queue.getItemAt(0).tag.nodeName).toEqual("IMG");
+                expect(queue.getItemAt(1).tag.nodeName).toEqual("IMG");
+                expect(queue.getItemAt(2).tag).toEqual(undefined);
 
                 done();
             });
@@ -352,8 +352,8 @@ describe("", function() {
 
                     for(var property in images[i]) {
 
-                        expect(queue.get(i).hasOwnProperty(property)).toEqual(true);
-                        expect(queue.get(i)[property]).toEqual(images[i][property]);
+                        expect(queue.getItemAt(i).hasOwnProperty(property)).toEqual(true);
+                        expect(queue.getItemAt(i)[property]).toEqual(images[i][property]);
                     }
                 }
 
@@ -368,9 +368,9 @@ describe("", function() {
             waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
-                expect(queue.get(0).src).toEqual(images[0].src);
-                expect(queue.get(1).src).toEqual(images[1].src);
-                expect(queue.get(2).src).toEqual(images[2].src);
+                expect(queue.getItemAt(0).src).toEqual(images[0].src);
+                expect(queue.getItemAt(1).src).toEqual(images[1].src);
+                expect(queue.getItemAt(2).src).toEqual(images[2].src);
 
                 done();
             });
@@ -383,9 +383,9 @@ describe("", function() {
             waitLoaderComplete(loader, function() {
                 var queue = loader.getQueue();
 
-                expect(queue.get(0).status).toEqual("complete");
-                expect(queue.get(1).status).toEqual("complete");
-                expect(queue.get(2).status).toEqual("failed");
+                expect(queue.getItemAt(0).status).toEqual("complete");
+                expect(queue.getItemAt(1).status).toEqual("complete");
+                expect(queue.getItemAt(2).status).toEqual("failed");
 
                 done();
             });
@@ -394,10 +394,10 @@ describe("", function() {
 
     describe("Loading statistics", function() {
 
-        it("percent to loaded", function(done) {
+        it("percent loaded", function(done) {
             var images = getImages_objectArray();
             var loader = new ImageLoader({images:images, onFileComplete: fileComplete, autoload:false});
-            var result = [loader.getPercentLoaded()];
+            var result = [loader.getQueue().getPercentLoaded()];
 
             loader.load();
 
@@ -418,7 +418,7 @@ describe("", function() {
             });
 
             function fileComplete(item) {
-                result.push(loader.getPercentLoaded());
+                result.push(loader.getQueue().getPercentLoaded());
             }
         });
     });
@@ -454,7 +454,7 @@ describe("", function() {
                 var queue = loader.getQueue();
 
                 for(var i = 0; i < images.length; i++) {
-                    expect(images[i]).toEqual(queue.get(i).src);
+                    expect(images[i]).toEqual(queue.getItemAt(i).src);
                 }
 
                 done();
