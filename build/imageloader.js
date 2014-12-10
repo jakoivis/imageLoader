@@ -1,573 +1,545 @@
-/*
-
-    features 1.0:
-        - basic implementation: preload images
-        - hold custom paramters for each image
-        - callback executed when everything has been loaded
-        - callback executed after a file has been loaded
-
-    features 1.1
-        - loading threads
-        - loading order is preserved.
-        - examples
-        - simulate loading time
-        - onFileStart executed before a file starts loading
-
-    ImageLoader(options [object])
-        options argument
-            - images: [array] array of image file paths.
-            - autoload: [boolean] default true. whether to load immediately when ImageLoader instance is created.
-            - onComplete: [function()] called when everything has been loaded.
-            - onFileComplete: [function(QueueItem)] called after each successfull or unsuccessfull load.
-            - onFileStart: [function(QueueItem)] called before each load.
-            - numberOfThreads: [int] number of threads used for preloading.
-            - simulationDelayMin: [int] When specified a download simulation time delay will be added. Specified in milliseconds.
-            - simulationDelayMax: [int] When specified a download simulation time delay will be added. Specified in milliseconds.
-*/
-
 ;(function(undefined) {
-    'use strict';
+"use strict";
 
-    window.ImageLoader = ImageLoader;
+window.ImageLoader = ImageLoader;
 
-    function ImageLoader(options)
+function ImageLoader(options)
+{
+    if (!(this instanceof ImageLoader))
     {
-        if (!(this instanceof ImageLoader))
-        {
-            return new ImageLoader(options);
-        }
-
-        var me = this;
-        var autoload;
-        var queue;
-        var numberOfThreads;
-        var onCompleteCallback;
-        var onFileCompleteCallback;
-        var onFileStartCallback;
-        var isLoading;
-
-        init(options);
-
-        me.getQueue = function() { return queue; };
-
-        me.getPercentLoaded = function() { return queue.getPercentLoaded(); };
-
-        me.load = load;
-
-        me.isComplete = isComplete;
-
-        function init(options)
-        {
-            applyOptions(options);
-
-            isLoading = false;
-
-            if (autoload)
-            {
-                load();
-            }
-        }
-
-        function applyOptions(options)
-        {
-            if (!options || typeof options !== "object")
-            {
-                throw new Error("Options should be an Object");
-            }
-
-            queue = new Queue(getImages());
-            onCompleteCallback = getOnComplete();
-            onFileCompleteCallback = getOnFileComplete();
-            onFileStartCallback = getOnFileStart();
-            autoload = getAutoload();
-            numberOfThreads = getNumberOfThreads();
-
-            var delayMin = getSimulationDelayMin();
-            var delayMax = getSimulationDelayMax();
-
-            QueueItem.setSimulationDelays(delayMin, delayMax);
-
-            function getImages()
-            {
-                if (!options.images || !(options.images instanceof Array))
-                {
-                    throw new Error("Options object should have 'images' property (type of array) containing paths to the loaded images.");
-                }
-
-                for(var i = 0; i < options.images.length; i++)
-                {
-                    if (typeof options.images[i] !== "string" && !options.images[i].hasOwnProperty("src"))
-                    {
-                        throw new Error("Objects in 'images' property should have src property");
-                    }
-                }
-
-                return options.images.slice(0);
-            }
-
-            function getOnComplete()
-            {
-                if (options.onComplete && typeof options.onComplete !== "function")
-                {
-                    throw new Error("'onComplete' property should be a function");
-                }
-
-                return getValue(options.onComplete, undefined);
-            }
-
-            function getOnFileComplete()
-            {
-                if (options.onFileComplete && typeof options.onFileComplete !== "function")
-                {
-                    throw new Error("'onFileComplete' property should be a function");
-                }
-
-                return getValue(options.onFileComplete, undefined);
-            }
-
-            function getOnFileStart()
-            {
-                if (options.onFileStart && typeof options.onFileStart !== "function")
-                {
-                    throw new Error("'onFileStart' property should be a function");
-                }
-
-                return getValue(options.onFileStart, undefined);
-            }
-
-            function getAutoload()
-            {
-                return getValue(options.autoload, true);
-            }
-
-            function getNumberOfThreads()
-            {
-                var value = getValue(options.numberOfThreads, 1);
-                var number = parseInt(value);
-
-                if (isNaN(number) || number < 1)
-                {
-                    throw new Error("'numberOfThreads' should be integer number grater than 0");
-                }
-
-                return number;
-            }
-
-            function getSimulationDelayMin()
-            {
-                var value = getValue(options.simulationDelayMin, undefined);
-                var number = parseInt(value);
-
-                // allow undefined values but other values that cannot be converted to number are not allowed
-                if (typeof value !== 'undefined' && (isNaN(number) || number < 0))
-                {
-                    throw new Error("'simulationDelayMin' should be a non-negative integer number");
-                }
-
-                if (typeof value === 'undefined')
-                {
-                    number = undefined;
-                }
-
-                return number;
-            }
-
-            function getSimulationDelayMax()
-            {
-                var value = getValue(options.simulationDelayMax, undefined);
-                var number = parseInt(value);
-
-                // allow undefined values but other values that cannot be converted to number are not allowed
-                if (typeof value !== 'undefined' && (isNaN(number) || number < 0))
-                {
-                    throw new Error("'simulationDelayMax' should be a non-negative integer number");
-                }
-
-                if (typeof value === 'undefined')
-                {
-                    number = undefined;
-                }
-
-                return number;
-            }
-
-            function getValue(value, defaultValue)
-            {
-                return typeof value === 'undefined' ? defaultValue : value;
-            }
-        }
-
-        function load()
-        {
-            if (isLoading === false && isComplete() === false)
-            {
-                isLoading = true;
-                createThreads();
-            }
-        }
-
-        function createThreads()
-        {
-            for(var i = 0; i < numberOfThreads; i++)
-            {
-                new Thread({
-                    onThreadComplete: threadCompleteHandler,
-                    onFileComplete: onFileCompleteHandler,
-                    onFileStart: onFileStartHandler,
-                    queue: queue
-                });
-            }
-        }
-
-        function onFileCompleteHandler(item)
-        {
-            if (onFileCompleteCallback)
-            {
-                onFileCompleteCallback(item);
-            }
-        }
-
-        function onFileStartHandler(item)
-        {
-            if (onFileStartCallback)
-            {
-                onFileStartCallback(item);
-            }
-        }
-
-        function threadCompleteHandler()
-        {
-            if (isComplete() && onCompleteCallback)
-            {
-                isLoading = false;
-                onCompleteCallback();
-            }
-        }
-
-        function isComplete()
-        {
-            return queue.isComplete();
-        }
-
-        return this;
+        return new ImageLoader(options);
     }
 
-})();
+    var me = this;
+    var autoload;
+    var queue;
+    var numberOfThreads;
+    var onCompleteCallback;
+    var onFileCompleteCallback;
+    var onFileStartCallback;
+    var isLoading;
 
-;(function(undefined) {
-    'use strict';
+    init(options);
 
-    window.Queue = Queue;
+    me.load = load;
+    me.isComplete = isComplete;
+    me.getPercentLoaded = getPercentLoaded;
+    me.getItemAt = getItemAt;
+    me.length = length;
 
-    function Queue(images)
+    function init(options)
     {
-        if (!(this instanceof Queue))
+        applyOptions(options);
+
+        isLoading = false;
+
+        if (autoload)
         {
-            return new Queue(images);
+            load();
         }
-
-        var items;
-        var me = this;
-
-        me.length = 0;
-
-        init();
-
-        me.get = function(index)
-        {
-            return items[index];
-        };
-
-        me.isComplete = function()
-        {
-            var result = true;
-            var item;
-
-            for(var i = 0; i < items.length; i++)
-            {
-                item = items[i];
-
-                if (item.isPending() || item.isLoading())
-                {
-                    result = false;
-                    break;
-                }
-            }
-
-            return result;
-        };
-
-        me.getNextPendingItem = function()
-        {
-            var result;
-
-            for(var i = 0; i < items.length; i++)
-            {
-                if (items[i].isPending())
-                {
-                    result = items[i];
-                    break;
-                }
-            }
-
-            return result;
-        };
-
-        me.getPercentLoaded = function()
-        {
-            var item;
-            var i = 0;
-            var len = items.length;
-
-            for(i; i < len; i++)
-            {
-                item = items[i];
-
-                if (item.isPending() || item.isLoading())
-                {
-                    break;
-                }
-            }
-
-            return i / len;
-        };
-
-        function init()
-        {
-            items = createItems(images);
-            me.length = items.length;
-        }
-
-        function createItems(images)
-        {
-            var result = [];
-
-            for(var i = 0; i < images.length; i++)
-            {
-                if (typeof images[i] === "string")
-                {
-                    result.push(new QueueItem({
-                        src: images[i]
-                    }));
-                }
-                else if (typeof images[i] === "object")
-                {
-                    result.push(new QueueItem(images[i]));
-                }
-            }
-
-            return result;
-        }
-
-        return this;
-    }
-})();
-;(function(undefined) {
-    'use strict';
-
-    window.QueueItem = QueueItem;
-
-    function QueueItem(options)
-    {
-        if (!(this instanceof QueueItem))
-        {
-            return new QueueItem();
-        }
-
-        var STATUS = {
-            PENDING: "pending",
-            LOADING: "loading",
-            COMPLETE: "complete",
-            FAILED: "failed"
-        };
-
-        var me = this;
-
-        var onLoadCallback;
-
-        init();
-
-        me.load = function(onLoad)
-        {
-            onLoadCallback = onLoad;
-
-            setStatusLoading();
-
-            me.tag.addEventListener('load', onLoadHandler);
-            me.tag.addEventListener('error', onErrorHandler);
-
-            me.tag.src = me.src;
-        };
-
-        me.isPending = function () { return me.status === STATUS.PENDING; };
-        me.isComplete = function () { return me.status === STATUS.COMPLETE; };
-        me.isLoading = function () { return me.status === STATUS.LOADING; };
-        me.isFailed = function () { return me.status === STATUS.FAILED; };
-
-        function init()
-        {
-            setProperties();
-            setStatusPending();
-        }
-
-        function setProperties()
-        {
-            for(var property in options)
-            {
-                me[property] = options[property];
-            }
-
-            me.tag = document.createElement("img");
-        }
-
-        function setStatusFailed() { me.status = STATUS.FAILED; }
-        function setStatusComplete() { me.status = STATUS.COMPLETE; }
-        function setStatusLoading() { me.status = STATUS.LOADING; }
-        function setStatusPending() { me.status = STATUS.PENDING; }
-
-        function removeListeners()
-        {
-            me.tag.removeEventListener('load', onLoadHandler);
-            me.tag.removeEventListener('error', onErrorHandler);
-        }
-
-        function onLoadHandler(event)
-        {
-            if (QueueItem.simulationDelayMin)
-            {
-                setTimeout(function()
-                {
-                    finalizeOnLoad();
-
-                }, calculateSimulationDelay());
-            }
-            else
-            {
-                finalizeOnLoad();
-            }
-        }
-
-        function onErrorHandler(event)
-        {
-            if (QueueItem.simulationDelayMin)
-            {
-                setTimeout(function()
-                {
-                    finalizeOnError();
-
-                }, calculateSimulationDelay());
-            }
-            else
-            {
-                finalizeOnError();
-            }
-        }
-
-        function finalizeOnLoad()
-        {
-            removeListeners();
-            setStatusComplete();
-            handleLoadCallback();
-            onLoadCallback = undefined;
-        }
-
-        function finalizeOnError()
-        {
-            removeListeners();
-            me.tag = undefined;
-            setStatusFailed();
-            handleLoadCallback();
-            onLoadCallback = undefined;
-        }
-
-        function handleLoadCallback()
-        {
-            if (onLoadCallback)
-            {
-                onLoadCallback(me);
-            }
-        }
-
-        function calculateSimulationDelay()
-        {
-            var max = QueueItem.simulationDelayMax;
-            var min = QueueItem.simulationDelayMin;
-
-            return Math.floor(Math.random() * (max - min) + min);
-        }
-
-        return this;
     }
 
-    QueueItem.setSimulationDelays = function(min, max)
+    function applyOptions(options)
     {
-        var delayMin = min;
-        var delayMax = max;
-
-        if (delayMin && !delayMax)
+        if (!options || typeof options !== "object")
         {
-            delayMax = delayMin;
-        }
-        else if (delayMax && !delayMin)
-        {
-            delayMin = delayMax;
+            throw new Error("Options should be an Object");
         }
 
-        QueueItem.simulationDelayMin = delayMin;
-        QueueItem.simulationDelayMax = delayMax;
-    };
-})();
-;(function(undefined) {
-    'use strict';
+        queue = new Queue(getImages());
+        onCompleteCallback = getOnComplete();
+        onFileCompleteCallback = getOnFileComplete();
+        onFileStartCallback = getOnFileStart();
+        autoload = getAutoload();
+        numberOfThreads = getNumberOfThreads();
 
-    window.Thread = Thread;
+        var delayMin = getSimulationDelayMin();
+        var delayMax = getSimulationDelayMax();
 
-    function Thread(options)
+        QueueItem.setSimulationDelays(delayMin, delayMax);
+
+        function getImages()
+        {
+            if (!options.images || !(options.images instanceof Array))
+            {
+                throw new Error("Options object should have 'images' property (type of array) containing paths to the loaded images.");
+            }
+
+            for(var i = 0; i < options.images.length; i++)
+            {
+                if (typeof options.images[i] !== "string" && !options.images[i].hasOwnProperty("src"))
+                {
+                    throw new Error("Objects in 'images' property should have src property");
+                }
+            }
+
+            return options.images.slice(0);
+        }
+
+        function getOnComplete()
+        {
+            if (options.onComplete && typeof options.onComplete !== "function")
+            {
+                throw new Error("'onComplete' property should be a function");
+            }
+
+            return getValue(options.onComplete, undefined);
+        }
+
+        function getOnFileComplete()
+        {
+            if (options.onFileComplete && typeof options.onFileComplete !== "function")
+            {
+                throw new Error("'onFileComplete' property should be a function");
+            }
+
+            return getValue(options.onFileComplete, undefined);
+        }
+
+        function getOnFileStart()
+        {
+            if (options.onFileStart && typeof options.onFileStart !== "function")
+            {
+                throw new Error("'onFileStart' property should be a function");
+            }
+
+            return getValue(options.onFileStart, undefined);
+        }
+
+        function getAutoload()
+        {
+            return getValue(options.autoload, true);
+        }
+
+        function getNumberOfThreads()
+        {
+            var value = getValue(options.numberOfThreads, 1);
+            var number = parseInt(value);
+
+            if (isNaN(number) || number < 1)
+            {
+                throw new Error("'numberOfThreads' should be integer number grater than 0");
+            }
+
+            return number;
+        }
+
+        function getSimulationDelayMin()
+        {
+            var value = getValue(options.simulationDelayMin, undefined);
+            var number = parseInt(value);
+
+            // allow undefined values but other values that cannot be converted to number are not allowed
+            if (typeof value !== 'undefined' && (isNaN(number) || number < 0))
+            {
+                throw new Error("'simulationDelayMin' should be a non-negative integer number");
+            }
+
+            if (typeof value === 'undefined')
+            {
+                number = undefined;
+            }
+
+            return number;
+        }
+
+        function getSimulationDelayMax()
+        {
+            var value = getValue(options.simulationDelayMax, undefined);
+            var number = parseInt(value);
+
+            // allow undefined values but other values that cannot be converted to number are not allowed
+            if (typeof value !== 'undefined' && (isNaN(number) || number < 0))
+            {
+                throw new Error("'simulationDelayMax' should be a non-negative integer number");
+            }
+
+            if (typeof value === 'undefined')
+            {
+                number = undefined;
+            }
+
+            return number;
+        }
+
+        function getValue(value, defaultValue)
+        {
+            return typeof value === 'undefined' ? defaultValue : value;
+        }
+    }
+
+    function load()
     {
-        if (!(this instanceof Thread))
+        if (isLoading === false && isComplete() === false)
         {
-            return new Thread(options);
+            isLoading = true;
+            createThreads();
         }
+    }
 
-        var me = this;
-        var onThreadCompleteCallback;
-        var onFileCompleteCallback;
-        var onFileStartCallback;
-        var queue;
-
-        init();
-
-        function init()
+    function createThreads()
+    {
+        for(var i = 0; i < numberOfThreads; i++)
         {
-            onThreadCompleteCallback = options.onThreadComplete;
-            onFileCompleteCallback = options.onFileComplete;
-            onFileStartCallback = options.onFileStart;
-            queue = options.queue;
-
-            processNextItem();
+            new Thread({
+                onThreadComplete: threadCompleteHandler,
+                onFileComplete: onFileCompleteHandler,
+                onFileStart: onFileStartHandler,
+                queue: queue
+            });
         }
+    }
 
-        function processNextItem()
-        {
-            var queueItem = queue.getNextPendingItem();
-
-            if (typeof queueItem === 'undefined')
-            {
-                onThreadCompleteCallback();
-            }
-            else
-            {
-                queueItem.load(onLoadHandler);
-                onFileStartCallback(queueItem);
-            }
-        }
-
-        function onLoadHandler(item)
+    function onFileCompleteHandler(item)
+    {
+        if (onFileCompleteCallback)
         {
             onFileCompleteCallback(item);
-            processNextItem();
+        }
+    }
+
+    function onFileStartHandler(item)
+    {
+        if (onFileStartCallback)
+        {
+            onFileStartCallback(item);
+        }
+    }
+
+    function threadCompleteHandler()
+    {
+        if (isComplete() && onCompleteCallback)
+        {
+            isLoading = false;
+            onCompleteCallback();
+        }
+    }
+
+    function isComplete()
+    {
+        return queue.isComplete();
+    }
+
+    function getPercentLoaded()
+    {
+        return queue.getPercentLoaded();
+    }
+
+    function getItemAt(index)
+    {
+        return queue.getItemAt(index);
+    }
+
+    function length()
+    {
+        return queue.length;
+    }
+
+    return this;
+}
+
+
+function Queue(images)
+{
+    if (!(this instanceof Queue))
+    {
+        return new Queue(images);
+    }
+
+    var items;
+    var me = this;
+
+    me.length = 0;
+
+    init();
+
+    me.getItemAt = function(index)
+    {
+        return items[index];
+    };
+
+    me.isComplete = function()
+    {
+        var result = true;
+        var item;
+
+        for(var i = 0; i < items.length; i++)
+        {
+            item = items[i];
+
+            if (item.isPending() || item.isLoading())
+            {
+                result = false;
+                break;
+            }
         }
 
-        return this;
+        return result;
+    };
+
+    me.getNextPendingItem = function()
+    {
+        var result;
+
+        for(var i = 0; i < items.length; i++)
+        {
+            if (items[i].isPending())
+            {
+                result = items[i];
+                break;
+            }
+        }
+
+        return result;
+    };
+
+    me.getPercentLoaded = function()
+    {
+        var item;
+        var i = 0;
+        var len = items.length;
+
+        for(i; i < len; i++)
+        {
+            item = items[i];
+
+            if (item.isPending() || item.isLoading())
+            {
+                break;
+            }
+        }
+
+        return i / len;
+    };
+
+    function init()
+    {
+        items = createItems(images);
+        me.length = items.length;
     }
+
+    function createItems(images)
+    {
+        var result = [];
+
+        for(var i = 0; i < images.length; i++)
+        {
+            if (typeof images[i] === "string")
+            {
+                result.push(new QueueItem({
+                    src: images[i]
+                }));
+            }
+            else if (typeof images[i] === "object")
+            {
+                result.push(new QueueItem(images[i]));
+            }
+        }
+
+        return result;
+    }
+
+    return this;
+}
+
+
+function QueueItem(options)
+{
+    if (!(this instanceof QueueItem))
+    {
+        return new QueueItem();
+    }
+
+    var STATUS = {
+        PENDING: "pending",
+        LOADING: "loading",
+        COMPLETE: "complete",
+        FAILED: "failed"
+    };
+
+    var me = this;
+
+    var onLoadCallback;
+
+    init();
+
+    me.load = function(onLoad)
+    {
+        onLoadCallback = onLoad;
+
+        setStatusLoading();
+
+        me.tag.addEventListener('load', onLoadHandler);
+        me.tag.addEventListener('error', onErrorHandler);
+
+        me.tag.src = me.src;
+    };
+
+    me.isPending = function () { return me.status === STATUS.PENDING; };
+    me.isComplete = function () { return me.status === STATUS.COMPLETE; };
+    me.isLoading = function () { return me.status === STATUS.LOADING; };
+    me.isFailed = function () { return me.status === STATUS.FAILED; };
+
+    function init()
+    {
+        setProperties();
+        setStatusPending();
+    }
+
+    function setProperties()
+    {
+        for(var property in options)
+        {
+            me[property] = options[property];
+        }
+
+        me.tag = document.createElement("img");
+    }
+
+    function setStatusFailed() { me.status = STATUS.FAILED; }
+    function setStatusComplete() { me.status = STATUS.COMPLETE; }
+    function setStatusLoading() { me.status = STATUS.LOADING; }
+    function setStatusPending() { me.status = STATUS.PENDING; }
+
+    function removeListeners()
+    {
+        me.tag.removeEventListener('load', onLoadHandler);
+        me.tag.removeEventListener('error', onErrorHandler);
+    }
+
+    function onLoadHandler(event)
+    {
+        if (QueueItem.simulationDelayMin)
+        {
+            setTimeout(function()
+            {
+                finalizeOnLoad();
+
+            }, calculateSimulationDelay());
+        }
+        else
+        {
+            finalizeOnLoad();
+        }
+    }
+
+    function onErrorHandler(event)
+    {
+        if (QueueItem.simulationDelayMin)
+        {
+            setTimeout(function()
+            {
+                finalizeOnError();
+
+            }, calculateSimulationDelay());
+        }
+        else
+        {
+            finalizeOnError();
+        }
+    }
+
+    function finalizeOnLoad()
+    {
+        removeListeners();
+        setStatusComplete();
+        handleLoadCallback();
+        onLoadCallback = undefined;
+    }
+
+    function finalizeOnError()
+    {
+        removeListeners();
+        me.tag = undefined;
+        setStatusFailed();
+        handleLoadCallback();
+        onLoadCallback = undefined;
+    }
+
+    function handleLoadCallback()
+    {
+        if (onLoadCallback)
+        {
+            onLoadCallback(me);
+        }
+    }
+
+    function calculateSimulationDelay()
+    {
+        var max = QueueItem.simulationDelayMax;
+        var min = QueueItem.simulationDelayMin;
+
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    return this;
+}
+
+QueueItem.setSimulationDelays = function(min, max)
+{
+    var delayMin = min;
+    var delayMax = max;
+
+    if (delayMin && !delayMax)
+    {
+        delayMax = delayMin;
+    }
+    else if (delayMax && !delayMin)
+    {
+        delayMin = delayMax;
+    }
+
+    QueueItem.simulationDelayMin = delayMin;
+    QueueItem.simulationDelayMax = delayMax;
+};
+
+
+function Thread(options)
+{
+    if (!(this instanceof Thread))
+    {
+        return new Thread(options);
+    }
+
+    var me = this;
+    var onThreadCompleteCallback;
+    var onFileCompleteCallback;
+    var onFileStartCallback;
+    var queue;
+
+    init();
+
+    function init()
+    {
+        onThreadCompleteCallback = options.onThreadComplete;
+        onFileCompleteCallback = options.onFileComplete;
+        onFileStartCallback = options.onFileStart;
+        queue = options.queue;
+
+        processNextItem();
+    }
+
+    function processNextItem()
+    {
+        var queueItem = queue.getNextPendingItem();
+
+        if (typeof queueItem === 'undefined')
+        {
+            onThreadCompleteCallback();
+        }
+        else
+        {
+            queueItem.load(onLoadHandler);
+            onFileStartCallback(queueItem);
+        }
+    }
+
+    function onLoadHandler(item)
+    {
+        onFileCompleteCallback(item);
+        processNextItem();
+    }
+
+    return this;
+}
 })();
