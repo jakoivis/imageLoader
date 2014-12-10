@@ -1,4 +1,4 @@
-JavaScript image loader for preloading images.
+Simple JavaScript image loader. Provides complete callbacks for the whole load and for individual files. Loading can be done in parallel or in sequence. 
 
 #ImageLoader options
 Property name       | Default           | Description
@@ -6,8 +6,8 @@ Property name       | Default           | Description
 **images**          |                   | Array of strings or array of objects. When specifying array of strings, each string in the array is a path to the image file. e.g. `["/path/to/image", ...]` When specifying array of objects, each object must have src property which is a path to the image file. e.g. `[{src:"/path/to/image", someProperty:"user's data"}, ...]` 
 **autoload**        | `true`            | Whether to load immediately when `ImageLoader` instance is created.
 **onComplete**      |                   | Callback function that is called when everything has been loaded. This function doesn't get any parameters.
-**onFileComplete**  |                   | Callback function that is called after each successfull or unsuccessfull load. This function has `QueueItem` parameter.
-**onFileStart**     |                   | Callback function that called before each load. This function has `QueueItem` parameter.
+**onFileComplete**  |                   | Callback function that is called after each successfull or unsuccessfull load. This function has `ImageLoaderItem` parameter.
+**onFileStart**     |                   | Callback function that called before each load. This function has `ImageLoaderItem` parameter.
 **numberOfThreads** | 1                 | Number of threads used for preloading. Keeping the default value will load all the images in sequence. Changing this to 3 for example, will load 3 images parallel.
 **simulationDelayMin**|                 | When spacified, a random time delay is added for each image download to simulate the connection speed. The random value is calculated between `simulationDelayMin` and `simulationDelayMax` values. This is used for testing purposes only. Specified in milliseconds. 
 **simulationDelayMax**|                 | 
@@ -19,11 +19,11 @@ Function | Description
 -------- | -----------
 **load()** | Start loading. This needs to be called only if the `autoload` option is set to false.
 **isComplete()** | Returns boolean value indicating whether all the images are loaded or not.
-**getItemAt(index)** | Returns the `QueueItem` object at the specified index.
+**getItemAt(index)** | Returns the `ImageLoaderItem` object at the specified index.
 **getPercentLoaded()** | Returns percentage loaded.
 **length()** | Number of items
 
-###QueueItem
+###ImageLoaderItem
 Property | Description
 -------- | -----------
 **status** | Status of the image load. Use `isPending`, `isComplete`, `isLoading` and `isFailed` functions to test the status. 
@@ -76,7 +76,7 @@ function onFileComplete(item) {
 ```
 
 ######Using custom properties in images object
-All the properties of image objects will be be accessible in the onFileComplete callback. Those properties are copied to the `QueueItem` objects.
+All the properties of image objects will be be accessible in the onFileComplete callback. Those properties are copied to the `ImageLoaderItem` objects.
 ```js
 var images = [
     {src:"/assets/sample1_tb.png", someProperty:"someValue1"},
