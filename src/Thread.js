@@ -1,11 +1,6 @@
 
 function Thread(options)
 {
-    if (!(this instanceof Thread))
-    {
-        return new Thread(options);
-    }
-
     var me = this;
     var onThreadCompleteCallback;
     var onFileCompleteCallback;

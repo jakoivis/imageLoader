@@ -1,11 +1,6 @@
 
 function QueueItem(options)
 {
-    if (!(this instanceof QueueItem))
-    {
-        return new QueueItem();
-    }
-
     var STATUS = {
         PENDING: "pending",
         LOADING: "loading",
@@ -99,7 +94,7 @@ function QueueItem(options)
     {
         removeListeners();
         setStatusComplete();
-        handleLoadCallback();
+        onLoadCallback(me);
         onLoadCallback = undefined;
     }
 
@@ -108,16 +103,8 @@ function QueueItem(options)
         removeListeners();
         me.tag = undefined;
         setStatusFailed();
-        handleLoadCallback();
+        onLoadCallback(me);
         onLoadCallback = undefined;
-    }
-
-    function handleLoadCallback()
-    {
-        if (onLoadCallback)
-        {
-            onLoadCallback(me);
-        }
     }
 
     function calculateSimulationDelay()
