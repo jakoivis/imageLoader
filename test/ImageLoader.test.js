@@ -256,8 +256,8 @@ describe("", function() {
             var loader = new ImageLoader({images:images, onFileComplete:onFileCompleteSpy});
 
             waitLoaderComplete(loader, function() {
-                var queueItem = onFileCompleteSpy.calls.mostRecent().args[0];
-                assertIsQueueItemObject(queueItem);
+                var imageLoaderItem = onFileCompleteSpy.calls.mostRecent().args[0];
+                assertIsImageLoaderItemObject(imageLoaderItem);
 
                 done();
             });
@@ -290,14 +290,14 @@ describe("", function() {
 
     describe("options.onFileStart", function() {
 
-        it("has QueueItem instance as an argument", function(done) {
+        it("has ImageLoaderItem instance as an argument", function(done) {
             var onFileStartSpy = jasmine.createSpy('onFileStart');
             var images = getImages_stringArray();
             var loader = new ImageLoader({images:images, onFileStart:onFileStartSpy});
 
             waitLoaderComplete(loader, function() {
-                var queueItem = onFileStartSpy.calls.mostRecent().args[0];
-                assertIsQueueItemObject(queueItem);
+                var imageLoaderItem = onFileStartSpy.calls.mostRecent().args[0];
+                assertIsImageLoaderItemObject(imageLoaderItem);
                 done();
             });
         });
@@ -596,7 +596,7 @@ describe("", function() {
         });
     });
 
-    function assertIsQueueItemObject(item)
+    function assertIsImageLoaderItemObject(item)
     {
         var hasTag = item.hasOwnProperty('tag');
         var hasSrc = item.hasOwnProperty('src');

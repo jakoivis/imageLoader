@@ -54,7 +54,7 @@ function ImageLoader(options)
         var delayMin = getSimulationDelayMin();
         var delayMax = getSimulationDelayMax();
 
-        QueueItem.setSimulationDelays(delayMin, delayMax);
+        ImageLoaderItem.setSimulationDelays(delayMin, delayMax);
 
         function getImages()
         {

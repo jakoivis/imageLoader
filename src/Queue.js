@@ -81,13 +81,13 @@ function Queue(images)
         {
             if (typeof images[i] === "string")
             {
-                result.push(new QueueItem({
+                result.push(new ImageLoaderItem({
                     src: images[i]
                 }));
             }
             else
             {
-                result.push(new QueueItem(images[i]));
+                result.push(new ImageLoaderItem(images[i]));
             }
         }
 

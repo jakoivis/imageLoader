@@ -21,16 +21,16 @@ function Thread(options)
 
     function processNextItem()
     {
-        var queueItem = queue.getNextPendingItem();
+        var imageLoaderItem = queue.getNextPendingItem();
 
-        if (typeof queueItem === 'undefined')
+        if (typeof imageLoaderItem === 'undefined')
         {
             onThreadCompleteCallback();
         }
         else
         {
-            queueItem.load(onLoadHandler);
-            onFileStartCallback(queueItem);
+            imageLoaderItem.load(onLoadHandler);
+            onFileStartCallback(imageLoaderItem);
         }
     }
 
