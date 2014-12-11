@@ -54,7 +54,7 @@ function ImageLoader(options)
         var delayMin = getSimulationDelayMin();
         var delayMax = getSimulationDelayMax();
 
-        QueueItem.setSimulationDelays(delayMin, delayMax);
+        ImageLoaderItem.setSimulationDelays(delayMin, delayMax);
 
         function getImages()
         {
@@ -65,6 +65,11 @@ function ImageLoader(options)
 
             for(var i = 0; i < options.images.length; i++)
             {
+                if(!options.images[i])
+                {
+                    throw new Error("Objects in 'images' cannot be null or undefined");
+                }
+
                 if (typeof options.images[i] !== "string" && !options.images[i].hasOwnProperty("src"))
                 {
                     throw new Error("Objects in 'images' property should have src property");

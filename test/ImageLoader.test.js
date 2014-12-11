@@ -83,6 +83,12 @@ describe("", function() {
             }).toThrow(new Error("'onFileStart' property should be a function"));
         });
 
+        it("image objects cannot be undefined or null", function() {
+            expect(function(){
+                new ImageLoader({images:[undefined]});
+            }).toThrow(new Error("Objects in 'images' cannot be null or undefined"));
+        });
+
         it("image objects should have src attributes", function() {
             expect(function(){
                 new ImageLoader({images:[{src:""},{}]});
@@ -133,6 +139,16 @@ describe("", function() {
     });
 
     describe("Initialization", function() {
+
+        it("Can be initialized without new keyword", function(done) {
+            var images = getImages_stringArray();
+            var loader = ImageLoader({images:images, onComplete: complete});
+
+            function complete() {
+                done();
+            }
+        });
+
         it("should have no items if images array is empty", function() {
             var loader = new ImageLoader({images:[], autoload:false});
             expect(loader.length()).toEqual(0);
@@ -240,8 +256,8 @@ describe("", function() {
             var loader = new ImageLoader({images:images, onFileComplete:onFileCompleteSpy});
 
             waitLoaderComplete(loader, function() {
-                var queueItem = onFileCompleteSpy.calls.mostRecent().args[0];
-                assertIsQueueItemObject(queueItem);
+                var imageLoaderItem = onFileCompleteSpy.calls.mostRecent().args[0];
+                assertIsImageLoaderItemObject(imageLoaderItem);
 
                 done();
             });
@@ -274,14 +290,14 @@ describe("", function() {
 
     describe("options.onFileStart", function() {
 
-        it("has QueueItem instance as an argument", function(done) {
+        it("has ImageLoaderItem instance as an argument", function(done) {
             var onFileStartSpy = jasmine.createSpy('onFileStart');
             var images = getImages_stringArray();
             var loader = new ImageLoader({images:images, onFileStart:onFileStartSpy});
 
             waitLoaderComplete(loader, function() {
-                var queueItem = onFileStartSpy.calls.mostRecent().args[0];
-                assertIsQueueItemObject(queueItem);
+                var imageLoaderItem = onFileStartSpy.calls.mostRecent().args[0];
+                assertIsImageLoaderItemObject(imageLoaderItem);
                 done();
             });
         });
@@ -385,6 +401,25 @@ describe("", function() {
                 done();
             });
         });
+
+        it("Status functions should return correct values", function(done) {
+            var images = getImages_objectArray_lastFails();
+            var loader = new ImageLoader({images:images});
+
+            waitLoaderComplete(loader, function() {
+
+                expect(loader.getItemAt(0).isPending()).toEqual(false);
+                expect(loader.getItemAt(0).isComplete()).toEqual(true);
+                expect(loader.getItemAt(0).isLoading()).toEqual(false);
+                expect(loader.getItemAt(0).isFailed()).toEqual(false);
+                expect(loader.getItemAt(2).isPending()).toEqual(false);
+                expect(loader.getItemAt(2).isComplete()).toEqual(false);
+                expect(loader.getItemAt(2).isLoading()).toEqual(false);
+                expect(loader.getItemAt(2).isFailed()).toEqual(true);
+
+                done();
+            });
+        });
     });
 
     describe("Loading statistics", function() {
@@ -475,6 +510,41 @@ describe("", function() {
         });
     });
 
+    describe("Simulation delays", function() {
+
+        it("It's enough to specify only simulationDelayMin", function(done) {
+            var onCompleteSpy = jasmine.createSpy('onComplete');
+            var images = getImages_stringArray_lastFails();
+            var loader = new ImageLoader({images:images,
+                                       simulationDelayMin:25,
+                                       onComplete:onCompleteSpy});
+
+            waitLoaderComplete(loader, function() {
+                expect(onCompleteSpy.calls.count()).toEqual(1);
+                expect(loader.getItemAt(0).isComplete()).toEqual(true);
+                expect(loader.getItemAt(1).isComplete()).toEqual(true);
+                expect(loader.getItemAt(2).isFailed()).toEqual(true);
+                done();
+            });
+        });
+
+        it("It's enough to specify only simulationDelayMax", function(done) {
+            var onCompleteSpy = jasmine.createSpy('onComplete');
+            var images = getImages_stringArray_lastFails();
+            var loader = new ImageLoader({images:images,
+                                       simulationDelayMax:25,
+                                       onComplete:onCompleteSpy});
+
+            waitLoaderComplete(loader, function() {
+                expect(onCompleteSpy.calls.count()).toEqual(1);
+                expect(loader.getItemAt(0).isComplete()).toEqual(true);
+                expect(loader.getItemAt(1).isComplete()).toEqual(true);
+                expect(loader.getItemAt(2).isFailed()).toEqual(true);
+                done();
+            });
+        })
+    });
+
     describe("General functionality", function() {
 
         it("Modified arrays and objects should not affect the loader", function(done) {
@@ -526,7 +596,7 @@ describe("", function() {
         });
     });
 
-    function assertIsQueueItemObject(item)
+    function assertIsImageLoaderItemObject(item)
     {
         var hasTag = item.hasOwnProperty('tag');
         var hasSrc = item.hasOwnProperty('src');

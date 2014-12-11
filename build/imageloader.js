@@ -56,7 +56,7 @@ function ImageLoader(options)
         var delayMin = getSimulationDelayMin();
         var delayMax = getSimulationDelayMax();
 
-        QueueItem.setSimulationDelays(delayMin, delayMax);
+        ImageLoaderItem.setSimulationDelays(delayMin, delayMax);
 
         function getImages()
         {
@@ -67,6 +67,11 @@ function ImageLoader(options)
 
             for(var i = 0; i < options.images.length; i++)
             {
+                if(!options.images[i])
+                {
+                    throw new Error("Objects in 'images' cannot be null or undefined");
+                }
+
                 if (typeof options.images[i] !== "string" && !options.images[i].hasOwnProperty("src"))
                 {
                     throw new Error("Objects in 'images' property should have src property");
@@ -239,13 +244,146 @@ function ImageLoader(options)
 }
 
 
-function Queue(images)
+function ImageLoaderItem(options)
 {
-    if (!(this instanceof Queue))
+    var STATUS = {
+        PENDING: "pending",
+        LOADING: "loading",
+        COMPLETE: "complete",
+        FAILED: "failed"
+    };
+
+    var me = this;
+
+    var onLoadCallback;
+
+    init();
+
+    me.load = function(onLoad)
     {
-        return new Queue(images);
+        onLoadCallback = onLoad;
+
+        setStatusLoading();
+
+        me.tag.addEventListener('load', onLoadHandler);
+        me.tag.addEventListener('error', onErrorHandler);
+
+        me.tag.src = me.src;
+    };
+
+    me.isPending = function () { return me.status === STATUS.PENDING; };
+    me.isComplete = function () { return me.status === STATUS.COMPLETE; };
+    me.isLoading = function () { return me.status === STATUS.LOADING; };
+    me.isFailed = function () { return me.status === STATUS.FAILED; };
+
+    function init()
+    {
+        setProperties();
+        setStatusPending();
     }
 
+    function setProperties()
+    {
+        for(var property in options)
+        {
+            me[property] = options[property];
+        }
+
+        me.tag = document.createElement("img");
+    }
+
+    function setStatusFailed() { me.status = STATUS.FAILED; }
+    function setStatusComplete() { me.status = STATUS.COMPLETE; }
+    function setStatusLoading() { me.status = STATUS.LOADING; }
+    function setStatusPending() { me.status = STATUS.PENDING; }
+
+    function removeListeners()
+    {
+        me.tag.removeEventListener('load', onLoadHandler);
+        me.tag.removeEventListener('error', onErrorHandler);
+    }
+
+    function onLoadHandler(event)
+    {
+        if (ImageLoaderItem.simulationDelayMin)
+        {
+            setTimeout(function()
+            {
+                finalizeOnLoad();
+
+            }, calculateSimulationDelay());
+        }
+        else
+        {
+            finalizeOnLoad();
+        }
+    }
+
+    function onErrorHandler(event)
+    {
+        if (ImageLoaderItem.simulationDelayMin)
+        {
+            setTimeout(function()
+            {
+                finalizeOnError();
+
+            }, calculateSimulationDelay());
+        }
+        else
+        {
+            finalizeOnError();
+        }
+    }
+
+    function finalizeOnLoad()
+    {
+        removeListeners();
+        setStatusComplete();
+        onLoadCallback(me);
+        onLoadCallback = undefined;
+    }
+
+    function finalizeOnError()
+    {
+        removeListeners();
+        me.tag = undefined;
+        setStatusFailed();
+        onLoadCallback(me);
+        onLoadCallback = undefined;
+    }
+
+    function calculateSimulationDelay()
+    {
+        var max = ImageLoaderItem.simulationDelayMax;
+        var min = ImageLoaderItem.simulationDelayMin;
+
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    return this;
+}
+
+ImageLoaderItem.setSimulationDelays = function(min, max)
+{
+    var delayMin = min;
+    var delayMax = max;
+
+    if (delayMin && !delayMax)
+    {
+        delayMax = delayMin;
+    }
+    else if (delayMax && !delayMin)
+    {
+        delayMin = delayMax;
+    }
+
+    ImageLoaderItem.simulationDelayMin = delayMin;
+    ImageLoaderItem.simulationDelayMax = delayMax;
+};
+
+
+function Queue(images)
+{
     var items;
     var me = this;
 
@@ -326,13 +464,13 @@ function Queue(images)
         {
             if (typeof images[i] === "string")
             {
-                result.push(new QueueItem({
+                result.push(new ImageLoaderItem({
                     src: images[i]
                 }));
             }
-            else if (typeof images[i] === "object")
+            else
             {
-                result.push(new QueueItem(images[i]));
+                result.push(new ImageLoaderItem(images[i]));
             }
         }
 
@@ -343,164 +481,8 @@ function Queue(images)
 }
 
 
-function QueueItem(options)
-{
-    if (!(this instanceof QueueItem))
-    {
-        return new QueueItem();
-    }
-
-    var STATUS = {
-        PENDING: "pending",
-        LOADING: "loading",
-        COMPLETE: "complete",
-        FAILED: "failed"
-    };
-
-    var me = this;
-
-    var onLoadCallback;
-
-    init();
-
-    me.load = function(onLoad)
-    {
-        onLoadCallback = onLoad;
-
-        setStatusLoading();
-
-        me.tag.addEventListener('load', onLoadHandler);
-        me.tag.addEventListener('error', onErrorHandler);
-
-        me.tag.src = me.src;
-    };
-
-    me.isPending = function () { return me.status === STATUS.PENDING; };
-    me.isComplete = function () { return me.status === STATUS.COMPLETE; };
-    me.isLoading = function () { return me.status === STATUS.LOADING; };
-    me.isFailed = function () { return me.status === STATUS.FAILED; };
-
-    function init()
-    {
-        setProperties();
-        setStatusPending();
-    }
-
-    function setProperties()
-    {
-        for(var property in options)
-        {
-            me[property] = options[property];
-        }
-
-        me.tag = document.createElement("img");
-    }
-
-    function setStatusFailed() { me.status = STATUS.FAILED; }
-    function setStatusComplete() { me.status = STATUS.COMPLETE; }
-    function setStatusLoading() { me.status = STATUS.LOADING; }
-    function setStatusPending() { me.status = STATUS.PENDING; }
-
-    function removeListeners()
-    {
-        me.tag.removeEventListener('load', onLoadHandler);
-        me.tag.removeEventListener('error', onErrorHandler);
-    }
-
-    function onLoadHandler(event)
-    {
-        if (QueueItem.simulationDelayMin)
-        {
-            setTimeout(function()
-            {
-                finalizeOnLoad();
-
-            }, calculateSimulationDelay());
-        }
-        else
-        {
-            finalizeOnLoad();
-        }
-    }
-
-    function onErrorHandler(event)
-    {
-        if (QueueItem.simulationDelayMin)
-        {
-            setTimeout(function()
-            {
-                finalizeOnError();
-
-            }, calculateSimulationDelay());
-        }
-        else
-        {
-            finalizeOnError();
-        }
-    }
-
-    function finalizeOnLoad()
-    {
-        removeListeners();
-        setStatusComplete();
-        handleLoadCallback();
-        onLoadCallback = undefined;
-    }
-
-    function finalizeOnError()
-    {
-        removeListeners();
-        me.tag = undefined;
-        setStatusFailed();
-        handleLoadCallback();
-        onLoadCallback = undefined;
-    }
-
-    function handleLoadCallback()
-    {
-        if (onLoadCallback)
-        {
-            onLoadCallback(me);
-        }
-    }
-
-    function calculateSimulationDelay()
-    {
-        var max = QueueItem.simulationDelayMax;
-        var min = QueueItem.simulationDelayMin;
-
-        return Math.floor(Math.random() * (max - min) + min);
-    }
-
-    return this;
-}
-
-QueueItem.setSimulationDelays = function(min, max)
-{
-    var delayMin = min;
-    var delayMax = max;
-
-    if (delayMin && !delayMax)
-    {
-        delayMax = delayMin;
-    }
-    else if (delayMax && !delayMin)
-    {
-        delayMin = delayMax;
-    }
-
-    QueueItem.simulationDelayMin = delayMin;
-    QueueItem.simulationDelayMax = delayMax;
-};
-
-
 function Thread(options)
 {
-    if (!(this instanceof Thread))
-    {
-        return new Thread(options);
-    }
-
     var me = this;
     var onThreadCompleteCallback;
     var onFileCompleteCallback;
@@ -521,16 +503,16 @@ function Thread(options)
 
     function processNextItem()
     {
-        var queueItem = queue.getNextPendingItem();
+        var imageLoaderItem = queue.getNextPendingItem();
 
-        if (typeof queueItem === 'undefined')
+        if (typeof imageLoaderItem === 'undefined')
         {
             onThreadCompleteCallback();
         }
         else
         {
-            queueItem.load(onLoadHandler);
-            onFileStartCallback(queueItem);
+            imageLoaderItem.load(onLoadHandler);
+            onFileStartCallback(imageLoaderItem);
         }
     }
 

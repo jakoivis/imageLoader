@@ -1,11 +1,6 @@
 
-function QueueItem(options)
+function ImageLoaderItem(options)
 {
-    if (!(this instanceof QueueItem))
-    {
-        return new QueueItem();
-    }
-
     var STATUS = {
         PENDING: "pending",
         LOADING: "loading",
@@ -65,7 +60,7 @@ function QueueItem(options)
 
     function onLoadHandler(event)
     {
-        if (QueueItem.simulationDelayMin)
+        if (ImageLoaderItem.simulationDelayMin)
         {
             setTimeout(function()
             {
@@ -81,7 +76,7 @@ function QueueItem(options)
 
     function onErrorHandler(event)
     {
-        if (QueueItem.simulationDelayMin)
+        if (ImageLoaderItem.simulationDelayMin)
         {
             setTimeout(function()
             {
@@ -99,7 +94,7 @@ function QueueItem(options)
     {
         removeListeners();
         setStatusComplete();
-        handleLoadCallback();
+        onLoadCallback(me);
         onLoadCallback = undefined;
     }
 
@@ -108,22 +103,14 @@ function QueueItem(options)
         removeListeners();
         me.tag = undefined;
         setStatusFailed();
-        handleLoadCallback();
+        onLoadCallback(me);
         onLoadCallback = undefined;
-    }
-
-    function handleLoadCallback()
-    {
-        if (onLoadCallback)
-        {
-            onLoadCallback(me);
-        }
     }
 
     function calculateSimulationDelay()
     {
-        var max = QueueItem.simulationDelayMax;
-        var min = QueueItem.simulationDelayMin;
+        var max = ImageLoaderItem.simulationDelayMax;
+        var min = ImageLoaderItem.simulationDelayMin;
 
         return Math.floor(Math.random() * (max - min) + min);
     }
@@ -131,7 +118,7 @@ function QueueItem(options)
     return this;
 }
 
-QueueItem.setSimulationDelays = function(min, max)
+ImageLoaderItem.setSimulationDelays = function(min, max)
 {
     var delayMin = min;
     var delayMax = max;
@@ -145,6 +132,6 @@ QueueItem.setSimulationDelays = function(min, max)
         delayMin = delayMax;
     }
 
-    QueueItem.simulationDelayMin = delayMin;
-    QueueItem.simulationDelayMax = delayMax;
+    ImageLoaderItem.simulationDelayMin = delayMin;
+    ImageLoaderItem.simulationDelayMax = delayMax;
 };

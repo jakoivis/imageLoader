@@ -1,11 +1,6 @@
 
 function Queue(images)
 {
-    if (!(this instanceof Queue))
-    {
-        return new Queue(images);
-    }
-
     var items;
     var me = this;
 
@@ -86,13 +81,13 @@ function Queue(images)
         {
             if (typeof images[i] === "string")
             {
-                result.push(new QueueItem({
+                result.push(new ImageLoaderItem({
                     src: images[i]
                 }));
             }
-            else if (typeof images[i] === "object")
+            else
             {
-                result.push(new QueueItem(images[i]));
+                result.push(new ImageLoaderItem(images[i]));
             }
         }
 
