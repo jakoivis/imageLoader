@@ -1,0 +1,23 @@
+{
+  "name": "imageLoader",
+  "version": "1.0.0",
+  "homepage": "https://github.com/jakoivis/imageLoader",
+  "authors": [
+    "Jarmo Koivisto"
+  ],
+  "description": "Javascript image preloader",
+  "main": "./build/imageloader.min.js",
+  "keywords": [
+    "imageloader", "Javascript"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src",
+    "coverage"
+  ]
+}
